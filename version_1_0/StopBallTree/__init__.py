@@ -33,6 +33,7 @@ class StopBallTree:
         :param query_result: tuple, of lists with [[val],[val]]
         :return: tuple(distances, matches)
         """
+        print(self.stop_2_tup(stops))
         dist, matches = self.tree.query(self.stop_2_tup(stops))
         dist = [self.R * x[0] for x in dist]
         matches = [x[0] for x in matches]
@@ -50,6 +51,19 @@ class StopBallTree:
             ind = self.tree.query_radius(self.stop_2_tup(stops), r=radius)
         # need to convert radius into radians distance
         return {stops[i]:[self.tree_stops[j] for j in ind[i]] for i in range(len(stops))}
+
+    def query_point(self, lat, lon):
+        """
+        this function querys a given point in lat and lon and returns the nearest stop object
+        :param lat:
+        :param lon:
+        :return:
+        """
+        _ = (lat, lon)
+        _ = np.radians(_)
+        matches = self.tree.query(_.reshape(1,-1),return_distance=False)
+        return self.tree_stops[matches[0][0]]
+
 
 
 

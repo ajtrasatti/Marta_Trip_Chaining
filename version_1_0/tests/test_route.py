@@ -10,9 +10,12 @@ class RouteTestCase(unittest.TestCase):
         lat = [10, 20, 15, 40, 50]
         lon = [15, 30, 22.5, 60, 75]
         self.routes = [1, 1, 2, 2, 3]
-        self.stops = [Stop(ids[i], lat[i], lon[i], self.routes[i]) for i in range(len(ids))]
-        self.m1 = MegaStop([self.stops[0], self.stops[1]], ids[0], self.routes[0])
-        self.m2 = MegaStop([self.stops[2], self.stops[3]], ids[1], self.routes[0])
+        self.stops = [Stop(ids[i], lat[i], lon[i]) for i in range(len(ids))]
+        s1 = [self.stops[0],self.stops[1]]
+        print(s1)
+        s2 = [self.stops[2],self.stops[3]]
+        self.m1 = MegaStop(ids[0], s1)
+        self.m2 = MegaStop(ids[1], s2)
         self.route = Route(1, [self.m1, self.m2])
 
     def test_routes_build(self):

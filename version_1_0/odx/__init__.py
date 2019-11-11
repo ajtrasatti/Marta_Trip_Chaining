@@ -25,7 +25,8 @@ class ODX:
         """
         self.start = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
         self.end = dt.datetime.strptime("01/31/18 00:00", "%m/%d/%y %H:%M")
-        fileDir = os.path.realpath('__file__').split('/code')[0]
+        fileDir = os.path.realpath(__file__).split('/version_1_0')[0]
+        #fileDir = os.getcwd()
         self.data_path = os.path.join(fileDir, 'Data')
         self.megas = None
 
@@ -100,24 +101,30 @@ class ODX:
                 for stop in mega:
                     writer.writerow([route]+ list(stop.to_csv()))
 
-    def build_network(self, trans_limit,id=1):
+    def build_network(self, trans_limit=700,id=1):
         """
 
         :return:
         """
         if self.megas is not None:
-            self.network = Network(self.megas, id, 700)
+            self.network = Network(self.megas, id, trans_limit)
 
-
-    def preprocess_apc(self, day):
+    def preprocess_apc(self, path, start, end):
         """
-        @create function to preprocess apc data
-        @document
-        @test
-        :param day:
-        :return:
+        :param path: os path object file that the apc data is stored in
+        :param start: dt.datetime object
+        :param end: dt.datetime object
+        :return: None
         """
-        pass
+        df = pd.read_pickle(path)
+        df = df[(df['CALENDAR_ID'] >= start) & (df['CALENDAR_ID'] <= end)]
+        df = df[pd.notnull(df['ARRIVAL_TM_HM'])]
+        df.loc[:, "ARRIVAL_TM_HM"] = df["ARRIVAL_TM_HM"].str.split(':')
+        df.insert(len(df.columns), 'ARRIVAL_DTM', df.apply(
+            lambda x: x.CALENDAR_ID + dt.timedelta(hours=int(x.ARRIVAL_TM_HM[0]), minutes=int(x.ARRIVAL_TM_HM[1])),
+            axis=1))
+        self.apc =  df[['ROUTE_ABBR', 'SERVICE_TYPE_TEXT', 'VECHILE_TAG', 'LATITUDE', 'LONGITUDE', 'BOARD', 'ALIGHT',
+                   'ARRIVAL_DTM']]
 
     def preprocess_breeze(self, day):
         """
@@ -127,7 +134,16 @@ class ODX:
         :param day:
         :return:
         """
+        self.breeze = None
+
+    def link_data(self):
+        """
+
+        :return:
+        """
         pass
+
+
 
     def trip_chain(self):
         """
