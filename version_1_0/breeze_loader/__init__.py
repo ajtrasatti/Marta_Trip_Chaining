@@ -81,11 +81,19 @@ class Breeze_Loader:
                 bus_df.loc[temp2.index, 'STOP_ID'] = temp2.apply(lambda row: get_lat_lon(temp1, row), axis=1)
         return bus_df
 
-class Bus_Stop_Tree:
 
-    def __init__(self, bus_df, lower, upper):
-        pass
+    def apc_match(self, apc_df, bus_trees):
         """
-        need a constraint that determines between two stops 
+        New updated version of the APC match function
+        :param bus_trees:
+        :return:
         """
+        removed = []
+        apc_df = apc_df.sort_values(by='ARRIVAL_DTM')
+        for tup in apc_df.itertuples():
+            if tup.VECHILE_TAG is in bus_trees.keys():
+                tree = bus_trees[tup.VECHILE_TAG]
+            else:
+                removed.append(tup.VECHILE_TAG)
+
 

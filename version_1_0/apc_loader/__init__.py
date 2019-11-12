@@ -3,6 +3,9 @@ import pandas as pd
 import bisect
 
 class APC_Loader:
+    """
+    This file loads the apc data and preprocesses it
+    """
 
     def __init__(self,network = None):
         """
@@ -65,7 +68,10 @@ class APC_Loader:
             # adds together
 
     def build_bus_tree(self,bus_df):
-        pass
+        times = list(bus_df.ARRIVAL_DTM)
+        stops = list(bus_df.MEGA_STOP)
+        routes = list(bus_df.ROUTE_ABBR)
+        return BusTree(stops,routes,times)
 
     def build_bus_trees(self, apc_df):
         return {self.build_bus_tree(group) for name, group in apc_df.groupby("VECHILE_TAG")}
@@ -73,12 +79,13 @@ class APC_Loader:
 
 class BusTree:
 
-    def __init__(self, stops, routes, times):
-        time_tups = sorted([(i,t) for i, t in enumerate(times)])
+    def __init__(self, stops, routes, times, id=None):
+        time_tups = sorted([(i,t) for i, t in enumerate(times)],key=lambda x: x[1])
         self.times = [t for id,t in time_tups]
         self.ids = [id for id,t in time_tups]
         self.stops = stops
         self.routes = routes
+        self.id = id
 
     def find_time_index(self, time):
         """
@@ -102,10 +109,11 @@ class BusTree:
             # ensures that the last time is used
             loc = index - 1
         else:
-            #checks to see which one is closest
-            pass
-
-        return (self.times[index], self.stops[self.ids[index]], self.routes[self.ids[index]])
+            if abs(time - self.times[index]) < abs(time - self.times[index-1]):
+                loc = index
+            else:
+                loc = index - 1
+        return (self.times[loc], self.stops[self.ids[loc]], self.routes[self.ids[loc]])
 
 
 
