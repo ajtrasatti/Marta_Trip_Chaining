@@ -2,7 +2,11 @@
 @author Joshua E. Morgan , jmorgan63@gatech.edu
 Pascal Van Henteryck Lab
 v_0.0
+@todo cleanup and reimplement main method to use the odx class functions
+@todo provide more parameters to be enetered in the odx init statement to tune system
+@todo set up object that can store the error stats from different processes
 """
+
 import os
 import datetime as dt
 import pandas as pd
@@ -18,21 +22,30 @@ from rail_mapping_loader import RailMappingLoader
 class ODX:
     """
     This is the odx class which has the main
-
+    Attributes
+        - start -
+        - end -
+        - test
+        -
     """
-    def __init__(self, start, end, **kwargs):
+    def __init__(self, start, end, test=True, **kwargs):
         """
 
         :param start: string, with time of the period that starts
         :param end: string, with time of the period that starts
+        :param test: bool, determine wether to run the function in test mode with preset parameters
         :param kwargs:
         """
-        self.start = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
-        self.end = dt.datetime.strptime("01/31/18 00:00", "%m/%d/%y %H:%M")
         fileDir = os.path.realpath(__file__).split('/version_1_0')[0]
-        #fileDir = os.getcwd()
         self.data_path = os.path.join(fileDir, 'Data')
         self.megas = None
+        if test:
+            self.start = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
+            self.end = dt.datetime.strptime("01/31/18 00:00", "%m/%d/%y %H:%M")
+        else:
+            self.start = start
+            self.end = end
+
 
     def load_gtsf(self):
         """
@@ -53,9 +66,7 @@ class ODX:
         """
         Need to build a script to break these apart and store in seperate data buckets.
         Need to implement the search tree to find the given file containing the precompiled daily data
-        @document apc function
-        @test functionality
-        :param apc_path:
+        :param apc_path: path for the apc_data
         :return:
         """
         self.apc = pd.read_pickle(os.path.join(self.data_path, 'apc.pick'))
@@ -187,7 +198,9 @@ if __name__ == '__main__':
     apc_path = os.path.join(fileDir, 'Data/apc_test.pick')
     apc_df = apc_load.load_apc(apc_path)
     apc_df = apc_load.join_megas(apc_df)
-    bus_df = breeze_load.apc_match(bus_df, apc_df)
+    bus_dict = apc_load.build_search_dict(apc_df)
+    bus_df = breeze_load.apc_match(bus_df, bus_dict)
+    bus_df.to_csv(os.path.join(fileDir, 'version_1_0/tests/output/bus_df_test.csv'))
     path = os.path.join(fileDir, 'Data/RailStopsMap.csv')
     loader = RailMappingLoader()
     map_df = loader.load_rail_mappings(path)
@@ -195,5 +208,6 @@ if __name__ == '__main__':
     map_df = loader.fit_2_network(map_df, odx.network)
     rail_df = breeze_load.match_rail_stops(rail_df, map_df)
     df = pd.concat([bus_df, rail_df])
+    df.to_csv(os.path.join(fileDir,'version_1_0/tests/output/odx_df_test.csv'))
     print(df.head())
 
