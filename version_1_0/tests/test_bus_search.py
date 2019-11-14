@@ -1,6 +1,5 @@
 import unittest
 
-from network import net 
 
 class MyTestCase(unittest.TestCase):
     def test_something(self):

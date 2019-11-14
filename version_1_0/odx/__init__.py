@@ -10,6 +10,9 @@ import schedule
 from mega_stop_fac import MegaStopFac
 from network import Network
 from Rail_stop_fac import RailStopFac
+from apc_loader import APC_Loader
+from breeze_loader import Breeze_Loader
+
 
 class ODX:
     """
@@ -25,7 +28,8 @@ class ODX:
         """
         self.start = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
         self.end = dt.datetime.strptime("01/31/18 00:00", "%m/%d/%y %H:%M")
-        fileDir = os.path.realpath('__file__').split('/code')[0]
+        fileDir = os.path.realpath(__file__).split('/version_1_0')[0]
+        #fileDir = os.getcwd()
         self.data_path = os.path.join(fileDir, 'Data')
         self.megas = None
 
@@ -100,34 +104,55 @@ class ODX:
                 for stop in mega:
                     writer.writerow([route]+ list(stop.to_csv()))
 
-    def build_network(self, trans_limit,id=1):
+    def build_network(self, trans_limit=700,id=1):
         """
 
         :return:
         """
         if self.megas is not None:
-            self.network = Network(self.megas, id, 700)
+            self.network = Network(self.megas, id, trans_limit)
 
-
-    def preprocess_apc(self, day):
+    def preprocess_apc(self, path, start, end):
         """
-        @create function to preprocess apc data
-        @document
-        @test
-        :param day:
+        :param path: os path object file that the apc data is stored in
+        :param start: dt.datetime object
+        :param end: dt.datetime object
+        :return: None
+        """
+        apc_load = APC_Loader(self.network)
+        apc_df = apc_load.load_apc(path)
+        apc_df = apc_load.join_megas(apc_df)
+        return apc_df
+
+
+    def preprocess_breeze(self, path):
+        """
+        :param path:
+        :return:
+        """
+        breeze_load = Breeze_Loader()
+        breeze_df = breeze_load.load_breeze(path)
+        bus_df, rail_df = breeze_load.split_frame(breeze_df)
+        return bus_df, rail_df
+
+    def link_rail_data(self, rail_df, data_path):
+        """
+
+        :param rail_mappings:
+        :param rail_df:
         :return:
         """
         pass
 
-    def preprocess_breeze(self, day):
+
+    def link_data(self, bus_df, rail_df):
         """
-        @create function to preprocess apc data
-        @document
-        @test
-        :param day:
+
         :return:
         """
         pass
+
+
 
     def trip_chain(self):
         """
@@ -138,9 +163,30 @@ class ODX:
         """
         pass
 
-    def __call__(self):
-        """
-        This funciton
-        :return:
-        """
-        pass
+if __name__ == '__main__':
+    start = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
+    end = dt.datetime.strptime("01/31/18 00:00", "%m/%d/%y %H:%M")
+    odx = ODX(start,end)
+    # loading gtsf
+    odx.load_gtsf()
+    # preprocessing gtsf data
+    odx.preprocess_gtsf(start)
+    # builidng a network
+    odx.build_network(700)
+    # loading breeze
+    fileDir = os.path.realpath(__file__).split('/version_1_0')[0]
+    breeze_path = os.path.join(fileDir, 'Data/breeze_test.pick')
+    breeze_load = Breeze_Loader()
+    breeze_df = breeze_load.load_breeze(breeze_path)
+    # splitting the bus_df
+    bus_df, rail_df = breeze_load.split_frame(breeze_df)
+    # loading apc
+    apc_load = APC_Loader(odx.network)
+    apc_path = os.path.join(fileDir, 'Data/apc_test.pick')
+    apc_df = apc_load.load_apc(apc_path)
+    apc_df = apc_load.join_megas(apc_df)
+    bus_df = breeze_load.apc_match(bus_df, apc_df)
+
+    # train_df = breeze_load.match_rail_stops(rail_df)
+    # df = breeze_load.combine(bus_df, rail_df)
+

@@ -1,4 +1,5 @@
 from sklearn.neighbors import BallTree
+import numpy as np
 
 class BallTreeHelper:
 
@@ -15,10 +16,15 @@ class BallTreeHelper:
         return np.radians(_)
 
     def build_ball_tree(self, route):
+        """
+        Constraucts a ball tree
+        :param route:
+        :return:
+        """
         stops = self.stop_2_tup(route)
         return BallTree(stops, metric='euclidean')
 
-    def get_neighbors(self, tree, route):
+    def get_neighbors(self, inbound, outbound, in_tree, out_tree):
         """
         this function finds the neighbors of a given object and returns them as a list with corrected indexes
         :param inbound: list of inbound facing stops
@@ -45,3 +51,11 @@ class BallTreeHelper:
         dist = [self.R * x[0] for x in dist]
         matches = [x[0] for x in matches]
         return dist, matches
+
+    def get_nearest(self, lat, lon, ball_tree):
+        """
+        this function takes in a lat and a l
+        :return: megastop_id
+        """
+        _ = np.radians((lat, lon))
+        return ball_tree.tree_stops[ball_tree.query(_)[0]]
