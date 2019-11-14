@@ -8,10 +8,11 @@ import datetime as dt
 import pandas as pd
 import schedule
 from mega_stop_fac import MegaStopFac
-from network import Network
+from network import NetworkBuilder
 from Rail_stop_fac import RailStopFac
 from apc_loader import APC_Loader
 from breeze_loader import Breeze_Loader
+from rail_mapping_loader import RailMappingLoader
 
 
 class ODX:
@@ -104,13 +105,14 @@ class ODX:
                 for stop in mega:
                     writer.writerow([route]+ list(stop.to_csv()))
 
-    def build_network(self, trans_limit=700,id=1):
+    def build_network(self, trans_limit=700,id = 1):
         """
 
         :return:
         """
         if self.megas is not None:
-            self.network = Network(self.megas, id, trans_limit)
+            builder = NetworkBuilder(trans_limit)
+            self.network = builder.build(self.megas, id)
 
     def preprocess_apc(self, path, start, end):
         """
@@ -172,7 +174,7 @@ if __name__ == '__main__':
     # preprocessing gtsf data
     odx.preprocess_gtsf(start)
     # builidng a network
-    odx.build_network(700)
+    odx.build_network(700, 1)
     # loading breeze
     fileDir = os.path.realpath(__file__).split('/version_1_0')[0]
     breeze_path = os.path.join(fileDir, 'Data/breeze_test.pick')
@@ -186,7 +188,12 @@ if __name__ == '__main__':
     apc_df = apc_load.load_apc(apc_path)
     apc_df = apc_load.join_megas(apc_df)
     bus_df = breeze_load.apc_match(bus_df, apc_df)
-
-    # train_df = breeze_load.match_rail_stops(rail_df)
-    # df = breeze_load.combine(bus_df, rail_df)
+    path = os.path.join(fileDir, 'Data/RailStopsMap.csv')
+    loader = RailMappingLoader()
+    map_df = loader.load_rail_mappings(path)
+    map_df = loader.clean_rail_mappings(map_df)
+    map_df = loader.fit_2_network(map_df, odx.network)
+    rail_df = breeze_load.match_rail_stops(rail_df, map_df)
+    df = pd.concat([bus_df, rail_df])
+    print(df.head())
 
