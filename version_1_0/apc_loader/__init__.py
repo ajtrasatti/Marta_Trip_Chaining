@@ -50,6 +50,7 @@ class APC_Loader:
                 x.append(ms.id)
             else:
                 bad += 1
+                x.append("NOT_FOUND")
         if test:
             return bad
         apc_df.insert(len(apc_df.columns),"MEGA_STOP",x)
@@ -75,6 +76,7 @@ class APC_Loader:
         :param bus_df:
         :return:
         """
+        print(bus_df.columns)
         times = list(bus_df.ARRIVAL_DTM)
         stops = list(bus_df.MEGA_STOP)
         routes = list(bus_df.ROUTE_ABBR)

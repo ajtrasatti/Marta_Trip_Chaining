@@ -176,7 +176,7 @@ class ODX:
         """
         pass
 
-if __name__ == '__main__':
+def main():
     start = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
     end = dt.datetime.strptime("01/31/18 00:00", "%m/%d/%y %H:%M")
     odx = ODX(start,end)
@@ -185,22 +185,22 @@ if __name__ == '__main__':
     # preprocessing gtsf data
     odx.preprocess_gtsf(start)
     # builidng a network
-    odx.build_network(700, 1)
+    odx.build_network(700, 1) # _NOTE_: try to put these in named variables for read ability
     # loading breeze
     fileDir = os.path.realpath(__file__).split('/version_1_0')[0]
-    breeze_path = os.path.join(fileDir, 'Data/breeze_test.pick')
+    breeze_path = os.path.join(fileDir, 'Data/breeze.pick')
     breeze_load = Breeze_Loader()
     breeze_df = breeze_load.load_breeze(breeze_path)
     # splitting the bus_df
     bus_df, rail_df = breeze_load.split_frame(breeze_df)
     # loading apc
     apc_load = APC_Loader(odx.network)
-    apc_path = os.path.join(fileDir, 'Data/apc_test.pick')
+    apc_path = os.path.join(fileDir, 'Data/apc.pick')
     apc_df = apc_load.load_apc(apc_path)
     apc_df = apc_load.join_megas(apc_df)
     bus_dict = apc_load.build_search_dict(apc_df)
     bus_df = breeze_load.apc_match(bus_df, bus_dict)
-    bus_df.to_csv(os.path.join(fileDir, 'version_1_0/tests/output/bus_df_test.csv'))
+    # bus_df.to_csv(os.path.join(fileDir, 'version_1_0/tests/output/bus_df_test.csv'))
     path = os.path.join(fileDir, 'Data/RailStopsMap.csv')
     loader = RailMappingLoader()
     map_df = loader.load_rail_mappings(path)
@@ -210,4 +210,7 @@ if __name__ == '__main__':
     df = pd.concat([bus_df, rail_df])
     df.to_csv(os.path.join(fileDir,'version_1_0/tests/output/odx_df_test.csv'))
     print(df.head())
+
+if __name__ == '__main__':
+    main()
 

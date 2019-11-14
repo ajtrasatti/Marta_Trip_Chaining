@@ -1,0 +1,8 @@
+*.DS_Store
+*.csv
+Data/
+OldPipeline/
+OldPipeline.zip
+*.pick
+*__pycache__/
+
