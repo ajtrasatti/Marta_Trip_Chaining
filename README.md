@@ -19,6 +19,6 @@ To build a software to build from transaction data and automated personel counte
 - **test** - directory containing all unit tests and integration tests
 - **union_find** - implementation of union_find algorithm for mega_stop pairing
 
-## Pipleine Diagram 
+## Pipeline Diagram 
 
 - **Coming Soon**
