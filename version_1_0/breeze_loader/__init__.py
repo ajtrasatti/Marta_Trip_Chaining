@@ -1,5 +1,8 @@
 
 import pandas as pd
+import numpy as np
+
+
 
 class Breeze_Loader:
 
@@ -44,7 +47,7 @@ class Breeze_Loader:
         else:
             return (bus_df,rail_df)
 
-    def match_rail_stops(self, rail_df, rail_mapping, network):
+    def match_rail_stops(self, rail_df, rail_mapping):
         """
 
         :param rail_df:
@@ -52,8 +55,19 @@ class Breeze_Loader:
         :param network:
         :return:
         """
-        pass
-
+        _ = rail_df.ctl_grp_short_desc.str.split('-').apply(lambda x: x[1].strip())
+        rail_df.insert(len(rail_df.columns), 'STOP',
+                       rail_df.ctl_grp_short_desc.str.split('-').apply(lambda x: x[1].strip()))
+        rail_df.update(rail_df.STOP.str.upper())
+        print(rail_df.head())
+        print(rail_mapping.head())
+        _ = rail_df.merge(rail_mapping,left_on='STOP',right_on='stop_name')
+        print(_.columns)
+        header = ['Serial_Nbr', 'Transaction_dtm', 'Dev_Operator', 'ctl_grp_short_desc', 'use_type_desc', 'bus_id',
+                  'route_no', 'route_name', 'MEGA_STOP']
+        print("MEGA_STOP" in _.columns)
+        return _[header]
+        #return _
 
     def match_2_apc(self, bus_df, apc_df):
         """
@@ -82,18 +96,54 @@ class Breeze_Loader:
         return bus_df
 
 
-    def apc_match(self, apc_df, bus_trees):
+    def apc_match(self, breeze_df, bus_searches):
         """
         New updated version of the APC match function
         :param bus_trees:
         :return:
         """
         removed = []
-        apc_df = apc_df.sort_values(by='ARRIVAL_DTM')
-        for tup in apc_df.itertuples():
-            if tup.VECHILE_TAG is in bus_trees.keys():
-                tree = bus_trees[tup.VECHILE_TAG]
+        breeze_df = breeze_df.sort_values(by='Transaction_dtm')
+        stops= []
+        times = []
+        routes = []
+        for tup in breeze_df.itertuples():
+            if tup.bus_id in bus_searches.keys():
+                search = bus_searches[tup.bus_id]
+                _ = search.find_stop_route(tup.Transaction_dtm)
+                if abs(tup.Transaction_dtm - _[0]).seconds <= 600:
+                    times.append(_[0])
+                    stops.append(_[1])
+                    routes.append(_[2])
+                else:
+                    removed.append(tup.bus_id)
+                    times.append(np.nan)
+                    stops.append(np.nan)
+                    routes.append(np.nan)
             else:
-                removed.append(tup.VECHILE_TAG)
+                removed.append(tup.bus_id)
+                times.append(np.nan)
+                stops.append(np.nan)
+                routes.append(np.nan)
+
+        breeze_df.insert(len(breeze_df.columns),'MEGA_STOP', stops)
+        breeze_df.insert(len(breeze_df.columns),"APC_TIME", times)
+        breeze_df.insert(len(breeze_df.columns),"APC_ROUTES",routes)
+        return breeze_df
+
+    def apc_test_stats(self, df):
+        """
+
+        :param df:
+        :return:
+        """
+        # calculating time
+        temp = df[pd.notnull(df.APC_TIME)]
+        print(pd.notnull(df.APC_TIME).sum()/df.shape[0])
+        temp1 = abs(temp.Transaction_dtm - temp.APC_TIME)
+        temp.insert(len(temp.columns), 'diff', temp1.apply(lambda x: x.seconds// 60))
+        temp.to_csv('apc_df_val.csv')
+        print(temp.describe())
+
 
 
