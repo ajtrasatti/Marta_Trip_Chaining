@@ -9,23 +9,23 @@ from stop import Stop, BusStop, TrainStop
 
 class ScheduleMaker:
     """
-    This class builds a daily service table or schedule based off of the gtsf day for a given day.
+    This class builds a daily service table or schedule based off of the gtfs day for a given day.
     attributes:
-        - trips - pd.DataFrame that coresponds to the trips table in the gtsf data set
-        - cal - pd.DataFrame that corresponds to the calendar table in the gtsf data set
-        - stop_times - pd.DataFrame that coresponds to the stop_times table in the gtsf data set
-        - stops - pd.DataFrame that corresponds to the stops table in the gtsf data set
-        - routes - pd.DataFrame that corresponds to the routes table in the gtsf data set
+        - trips - pd.DataFrame that coresponds to the trips table in the gtfs data set
+        - cal - pd.DataFrame that corresponds to the calendar table in the gtfs data set
+        - stop_times - pd.DataFrame that coresponds to the stop_times table in the gtfs data set
+        - stops - pd.DataFrame that corresponds to the stops table in the gtfs data set
+        - routes - pd.DataFrame that corresponds to the routes table in the gtfs data set
     """
 
     def __init__(self, trips, calendar, stop_times, stops,routes):
         """
 
-        :param trips: pd.DataFrame that coresponds to the trips table in the gtsf data set
-        :param calendar: pd.DataFrame that corresponds to the calendar table in the gtsf data set
-        :param stop_times: pd.DataFrame that coresponds to the stop_times table in the gtsf data set
-        :param stops: pd.DataFrame that corresponds to the stops table in the gtsf data set
-        :param routes: pd.DataFrame that corresponds to the routes table in the gtsf data set
+        :param trips: pd.DataFrame that coresponds to the trips table in the gtfs data set
+        :param calendar: pd.DataFrame that corresponds to the calendar table in the gtfs data set
+        :param stop_times: pd.DataFrame that coresponds to the stop_times table in the gtfs data set
+        :param stops: pd.DataFrame that corresponds to the stops table in the gtfs data set
+        :param routes: pd.DataFrame that corresponds to the routes table in the gtfs data set
         """
         self.trips = trips
         self.cal = calendar
@@ -37,7 +37,7 @@ class ScheduleMaker:
 
     def build_daily_table(self, day, split=True):
         """
-        Builds a schedule table for a day of gtsf data
+        Builds a schedule table for a day of gtfs data
         :param day: dt.DateTime object that contains the day of interest
         :param split: Boolean, default true, returns the dataframe split into a bus or train set
         :return: if split - return tuple of pd.Data frame (train_table,bus_table) other was weekly schedule

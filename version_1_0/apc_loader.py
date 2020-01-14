@@ -20,6 +20,10 @@ class APC_Loader:
         :param path:
         :return:
         """
+        import pickle
+        x = pickle.Unpickler("apc_test.pick")
+        print(x.load().head())
+
         return pd.read_pickle(path)
 
 

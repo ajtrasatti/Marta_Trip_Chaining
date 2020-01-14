@@ -6,7 +6,7 @@ import pandas as pd
 #####################
 In this we want to use our functions to:
 	1. Create clusters of stops (l-means clustering ?)
-	2. Chain the breeze card data to the apc data to the gtsf data
+	2. Chain the breeze card data to the apc data to the gtfs data
 			- 
 
 #####################

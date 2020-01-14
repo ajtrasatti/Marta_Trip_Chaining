@@ -13,7 +13,7 @@ import pandas as pd
 import schedule
 from mega_stop_fac import MegaStopFac
 from network import NetworkBuilder
-from Rail_stop_fac import RailStopFac
+from RailStopFac import RailStopFac
 from apc_loader import APC_Loader
 from breeze_loader import Breeze_Loader
 from rail_mapping_loader import RailMappingLoader
@@ -47,20 +47,20 @@ class ODX:
             self.end = end
 
 
-    def load_gtsf(self):
+    def load_gtfs(self):
         """
         build a documents search tree for this so we can get the correct days data
-        function loads all of the gtsf tables Exclusively
-        :param gtsf_path: path to the gtsf
+        function loads all of the gtfs tables Exclusively
+        :param gtfs_path: path to the gtfs
         :return:
         """
-        gtsf_path = os.path.join(self.data_path, 'gtsf')
-        trips = pd.read_csv(os.path.join(gtsf_path, 'trips.txt'))
-        stops = pd.read_csv(os.path.join(gtsf_path, 'stops.txt'))
-        stop_times = pd.read_csv(os.path.join(gtsf_path, "stop_times.txt"))
-        routes = pd.read_csv(os.path.join(gtsf_path, 'routes.txt'))
-        cal = pd.read_csv(os.path.join(gtsf_path, 'calendar.txt'))
-        self.gtsf = {"trips": trips, 'stops': stops, "stop_times": stop_times, "routes": routes, 'calendar': cal}
+        gtfs_path = os.path.join(self.data_path, 'gtfs')
+        trips = pd.read_csv(os.path.join(gtfs_path, 'trips.txt'))
+        stops = pd.read_csv(os.path.join(gtfs_path, 'stops.txt'))
+        stop_times = pd.read_csv(os.path.join(gtfs_path, "stop_times.txt"))
+        routes = pd.read_csv(os.path.join(gtfs_path, 'routes.txt'))
+        cal = pd.read_csv(os.path.join(gtfs_path, 'calendar.txt'))
+        self.gtfs = {"trips": trips, 'stops': stops, "stop_times": stop_times, "routes": routes, 'calendar': cal}
 
     def load_apc(self, apc_path):
         """
@@ -82,15 +82,15 @@ class ODX:
         """
         self.breeze = pd.read_pickle(os.path.join(self.data_path, 'breeze.pick'))
 
-    def preprocess_gtsf(self, day):
+    def preprocess_gtfs(self, day):
         """
         @document
         :param day:
         :return:
         """
         self.MegaStopFactory = MegaStopFac(700)
-        self.scheduler = schedule.ScheduleMaker(self.gtsf['trips'],self.gtsf['calendar'],
-                              self.gtsf['stop_times'],self.gtsf['stops'],self.gtsf['routes'])
+        self.scheduler = schedule.ScheduleMaker(self.gtfs['trips'],self.gtfs['calendar'],
+                              self.gtfs['stop_times'],self.gtfs['stops'],self.gtfs['routes'])
         self.scheduler.build_daily_table(day)
         routes, train_dict = self.scheduler.get_routes()
         route_ms = {}
@@ -177,13 +177,16 @@ class ODX:
         pass
 
 def main():
+    import time
+    t0 = time.time()
+
     start = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
     end = dt.datetime.strptime("01/31/18 00:00", "%m/%d/%y %H:%M")
     odx = ODX(start,end)
-    # loading gtsf
-    odx.load_gtsf()
-    # preprocessing gtsf data
-    odx.preprocess_gtsf(start)
+    # loading gtfs
+    odx.load_gtfs()
+    # preprocessing gtfs data
+    odx.preprocess_gtfs(start)
     # builidng a network
     odx.build_network(700, 1) # _NOTE_: try to put these in named variables for read ability
     # loading breeze
@@ -193,11 +196,13 @@ def main():
     breeze_df = breeze_load.load_breeze(breeze_path)
     # splitting the bus_df
     bus_df, rail_df = breeze_load.split_frame(breeze_df)
+    print("breeze loaded", time.time() - t0)
     # loading apc
     apc_load = APC_Loader(odx.network)
-    apc_path = os.path.join(fileDir, 'Data/apc.pick')
+    apc_path = os.path.join(fileDir, 'Data/apc_test.pick')
     apc_df = apc_load.load_apc(apc_path)
     apc_df = apc_load.join_megas(apc_df)
+    print("apc loaded", time.time() - t0)
     bus_dict = apc_load.build_search_dict(apc_df)
     bus_df = breeze_load.apc_match(bus_df, bus_dict)
     # bus_df.to_csv(os.path.join(fileDir, 'version_1_0/tests/output/bus_df_test.csv'))

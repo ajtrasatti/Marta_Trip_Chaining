@@ -6,7 +6,7 @@ v_0.0
 
 class Stop:
     """
-    Stop class represents a stop in the MARTA GTSF data
+    Stop class represents a stop in the MARTA gtfs data
     Attributes
         - id - int, unique identifier for a stop
         - lat - lattitude value for a given stop

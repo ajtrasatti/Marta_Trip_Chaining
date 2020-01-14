@@ -16,7 +16,7 @@ class Network:
     - look up a route_id, stop_id and get the valid transitions
     - be easily stored in a json format
     - be stored in a pickle format
-    - The constructor should be able to be run in batch over all gtsf days
+    - The constructor should be able to be run in batch over all gtfs days
         to build a search tree to find the directory for a given day
     """
 

@@ -13,11 +13,11 @@ class TestODX(unittest.TestCase):
 
     def setUp(self):
         self.odx = ODX(0,1)
-        self.odx.load_gtsf()
+        self.odx.load_gtfs()
         self.day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
 
-    def test_odx_preprocess_gtsf(self):
-        self.assertEqual(type(self.odx.preprocess_gtsf(self.day)),dict,"GTSF MegaStops incorrect type")
+    def test_odx_preprocess_gtfs(self):
+        self.assertEqual(type(self.odx.preprocess_gtfs(self.day)),dict,"gtfs MegaStops incorrect type")
         i , j = list(self.odx.megas.items())[1]
         self.assertEqual(type(i),str,"Route is incorrect Type")
         self.assertEqual(type(j), list, 'Mega Stop collection mapped to incorrect type')

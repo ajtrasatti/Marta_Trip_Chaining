@@ -14,9 +14,9 @@ class TestMegaFac(unittest.TestCase):
 
     def test_get_megas_stops(self):
         odx = ODX(0, 1)
-        odx.load_gtsf()
+        odx.load_gtfs()
         day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
-        megas = odx.preprocess_gtsf(day)
+        megas = odx.preprocess_gtfs(day)
         plotter = PlotStops()
         for stop in megas['51']:
             plotter.add_mega(stop)  # for s in stop.stops:  #    plotter.add_stop(s)
@@ -33,9 +33,9 @@ class TestMegaFac(unittest.TestCase):
 
     def test_build_ball_tree(self):
         odx = ODX(0, 1)
-        odx.load_gtsf()
+        odx.load_gtfs()
         day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
-        odx.preprocess_gtsf(day)
+        odx.preprocess_gtfs(day)
         fac = MegaStopFac(700)
 
 

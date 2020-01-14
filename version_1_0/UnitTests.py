@@ -20,11 +20,11 @@ class TestODX(unittest.TestCase):
 
     def setUp(self):
         self.odx = ODX(0,1)
-        self.odx.load_gtsf()
+        self.odx.load_gtfs()
         self.day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
 
-    def test_odx_preprocess_gtsf(self):
-        self.assertEqual(type(self.odx.preprocess_gtsf(self.day)),dict,"GTSF MegaStops incorrect type")
+    def test_odx_preprocess_gtfs(self):
+        self.assertEqual(type(self.odx.preprocess_gtfs(self.day)),dict,"gtfs MegaStops incorrect type")
         i , j = list(self.odx.megas.items())[1]
         self.assertEqual(type(i),str,"Route is incorrect Type")
         self.assertEqual(type(j), list, 'Mega Stop collection mapped to incorrect type')
@@ -53,9 +53,9 @@ class TestRailFac(unittest.TestCase):
     """def test_get_train_stops(self):
         from Rail_stop_fac import RailStopFac
         odx = ODX(0, 1)
-        odx.load_gtsf()
+        odx.load_gtfs()
         day = dt.datetime.strptime("02/08/18 00:00", "%m/%d/%y %H:%M")
-        megas = odx.preprocess_gtsf(day)
+        megas = odx.preprocess_gtfs(day)
         plotter = PlotStops()
         rsf = RailStopFac(200)
         for stop in rsf.get_rail_stops(odx.scheduler.get_trains_dict()):
@@ -70,9 +70,9 @@ class TestMegaFac(unittest.TestCase):
 
     def test_get_megas_stops(self):
         odx = ODX(0, 1)
-        odx.load_gtsf()
+        odx.load_gtfs()
         day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
-        megas = odx.preprocess_gtsf(day)
+        megas = odx.preprocess_gtfs(day)
         plotter = PlotStops()
         for stop in megas['51']:
             plotter.add_mega(stop)  # for s in stop.stops:  #    plotter.add_stop(s)
@@ -89,9 +89,9 @@ class TestMegaFac(unittest.TestCase):
 
     def test_build_ball_tree(self):
         odx = ODX(0, 1)
-        odx.load_gtsf()
+        odx.load_gtfs()
         day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
-        odx.preprocess_gtsf(day)
+        odx.preprocess_gtfs(day)
         fac = MegaStopFac(700)
 
 
@@ -181,9 +181,9 @@ class TestSchedule(unittest.TestCase):
 
     def test_import_files(self):
         odx = ODX(0,1)
-        odx.load_gtsf()
-        scheduler = ScheduleMaker(odx.gtsf['trips'], odx.gtsf['calendar'], odx.gtsf['stop_times'], odx.gtsf['stops'],
-                      odx.gtsf['routes'])
+        odx.load_gtfs()
+        scheduler = ScheduleMaker(odx.gtfs['trips'], odx.gtfs['calendar'], odx.gtfs['stop_times'], odx.gtfs['stops'],
+                      odx.gtfs['routes'])
         #@todo change test format to make sure key columns are in the set
         #self.assertListEqual(list(scheduler.cal.columns),['service_id','monday','tuesday','wednesday','thursday','friday','saturday','sunday','start_date','end_date'])
         #self.assertListEqual(list(scheduler.stop_times.columns),['trip_id','arrival_time','departure_time','stop_id','stop_sequence'])
@@ -198,9 +198,9 @@ class TestSchedule(unittest.TestCase):
         :return:
         """
         odx = ODX(0, 1)
-        odx.load_gtsf()
-        scheduler = ScheduleMaker(odx.gtsf['trips'], odx.gtsf['calendar'], odx.gtsf['stop_times'], odx.gtsf['stops'],
-                                  odx.gtsf['routes'])
+        odx.load_gtfs()
+        scheduler = ScheduleMaker(odx.gtfs['trips'], odx.gtfs['calendar'], odx.gtfs['stop_times'], odx.gtfs['stops'],
+                                  odx.gtfs['routes'])
         day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
         train, bus = scheduler.build_daily_table(day)
 
@@ -273,9 +273,9 @@ class TestNetworkBuild(unittest.TestCase):
 
     def setUp(self):
         odx = ODX(0, 1)
-        odx.load_gtsf()
+        odx.load_gtfs()
         day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
-        self.megas = odx.preprocess_gtsf(day)
+        self.megas = odx.preprocess_gtfs(day)
 
 
     def test_build(self):
@@ -295,9 +295,9 @@ class TestNetwork(unittest.TestCase):
 
     def setUp(self):
         odx = ODX(0, 1)
-        odx.load_gtsf()
+        odx.load_gtfs()
         day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
-        megas = odx.preprocess_gtsf(day)
+        megas = odx.preprocess_gtfs(day)
         builder = NetworkBuilder(700)
         self.net = builder.build(megas, 1)
 

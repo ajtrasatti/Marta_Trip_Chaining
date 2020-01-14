@@ -12,9 +12,9 @@ class TestAPCLoader(unittest.TestCase):
 
     def test_single(self):
         odx = ODX(0, 1)
-        odx.load_gtsf()
+        odx.load_gtfs()
         day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
-        self.megas = odx.preprocess_gtsf(day)
+        self.megas = odx.preprocess_gtfs(day)
         builder = NetworkBuilder(700)
         net = builder.build(self.megas, 1)
         fileDir = os.path.realpath(__file__).split('/version_1_0')[0]

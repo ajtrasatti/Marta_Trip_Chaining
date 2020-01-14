@@ -9,8 +9,7 @@ from collections import defaultdict
 from stop import MegaStop
 from union_find import UnionFind
 import numpy as np
-from StopBallTree import StopBallTree
-from math import radians, degrees
+
 
 
 class MegaStopFac:
