@@ -72,16 +72,17 @@ class MegaStop(Stop):
     def __str__(self):
         return f"Mega Stop: {self.id}"
 
-    def stops_2_csv(self,route=False):
+    def to_csv(self,route):
         """
         This extracts all of the stops belonging too the mega stops
         :param routes: boolean, determine whether to export with the routes or not
         :return: list of stop tuples
         """
-        if routes:
-            return ([(self.id, stop.id, self.lat, self.lon, stop.lat, stop.lon,route) for stop in self.stops for route in self.routes])
-        else:
-            return [(self.id, stop.id,self.lat,self.lon,stop.lat,stop.lon) for stop in self.stops]
+        return [(route, stop.id, stop.lat, stop.lon, self.id, self.lat, self.lon) for stop in self.stops]
+        # if route:
+        #     return ([(self.id, stop.id, self.lat, self.lon, stop.lat, stop.lon,route) for stop in self.stops for route in self.routes])
+        # else:
+        #     return [(self.id, stop.id,self.lat,self.lon,stop.lat,stop.lon) for stop in self.stops]
 
     def to_json(self):
         """

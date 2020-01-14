@@ -65,7 +65,6 @@ class TestMegaFac(unittest.TestCase):
         tup = _.stop_2_tup(stops)[0]
         self.assertAlmostEqual(tup[0],0)
         self.assertAlmostEqual(tup[1],1.5707,places=3)
-
     def test_build_mega_stops(self):
         stops = [Stop(1, 0, 90),Stop(2,10,45)]
         groups = {0:[0,1]}

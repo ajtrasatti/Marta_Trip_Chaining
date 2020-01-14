@@ -51,8 +51,8 @@ class ScheduleMaker:
         self.route_stops = route_stops.merge(self.stops[['stop_id', 'stop_lat', 'stop_lon']])
 
         if split:
-            self.train_table = self.route_stops[self.route_stops.route_short_name.isin(['RED', 'BLUE', 'GREEN', 'YELLOW'])]
-            self.bus_table = self.route_stops[~(self.route_stops.route_short_name.isin(['RED', 'BLUE', 'GREEN', 'YELLOW']))]
+            self.train_table = self.route_stops[self.route_stops.route_short_name.isin(['RED', 'BLUE', 'GREEN', 'GOLD'])]
+            self.bus_table = self.route_stops[~(self.route_stops.route_short_name.isin(['RED', 'BLUE', 'GREEN', 'GOLD']))]
             return self.train_table, self.bus_table
         else:
             return route_stops

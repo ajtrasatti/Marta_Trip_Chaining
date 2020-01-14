@@ -20,7 +20,7 @@ class Network:
         to build a search tree to find the directory for a given day
     """
 
-    def __init__(self,routes_dict, id, dates=None,trans_limit=10):
+    def __init__(self,routes_dict, dates=None,trans_limit=10):
         """
 
         :param routes: dict, containing route_name to route object
@@ -29,7 +29,6 @@ class Network:
         """
         # new function to build route_object
         self.routes = routes_dict
-        self.id = id
         self.dates = dates
 
 

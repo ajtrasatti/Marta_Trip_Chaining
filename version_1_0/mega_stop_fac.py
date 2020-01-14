@@ -121,12 +121,14 @@ class MegaStopFac:
             groups[x].append(i)
         return groups
 
-    def build_mega_stops(self, groups,stops):
+    def build_mega_stops(self, groups, stops):
         """
         This function builds megastops from a set of grouped data points and stops
         :param groups: dict, {repr: [index, index]}
         :param stops: list, [stop1,stop2]
         :return: [megas_stop1, mega_stop2]
+
+        @ Todo : update to the R and B 
         """
         mega_stops= []
         for group in groups.values():
