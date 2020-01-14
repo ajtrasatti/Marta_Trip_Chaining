@@ -69,7 +69,9 @@ class ODX:
         :param apc_path: path for the apc_data
         :return:
         """
-        self.apc = pd.read_pickle(os.path.join(self.data_path, 'apc.pick'))
+        print("TEST TEST")
+        print(self.datapath)
+        self.apc = pd.read_pickle(os.path.join(self.data_path, 'apc.csv'))
 
     def load_breeze(self, breeze_path):
         """
@@ -80,7 +82,7 @@ class ODX:
         :param breeze_path:
         :return:
         """
-        self.breeze = pd.read_pickle(os.path.join(self.data_path, 'breeze.pick'))
+        self.breeze = pd.read_pickle(os.path.join(self.data_path, 'breeze.csv'))
 
     def preprocess_gtfs(self, day):
         """
@@ -191,15 +193,16 @@ def main():
     odx.build_network(700, 1) # _NOTE_: try to put these in named variables for read ability
     # loading breeze
     fileDir = os.path.realpath(__file__).split('/version_1_0')[0]
-    breeze_path = os.path.join(fileDir, 'Data/breeze.pick')
+    breeze_path = os.path.join(fileDir, 'Data/breeze_test.csv')
+
+    breeze_df = pd.read_csv(breeze_path,parse_dates=["Transaction_dtm"])
     breeze_load = Breeze_Loader()
-    breeze_df = breeze_load.load_breeze(breeze_path)
     # splitting the bus_df
     bus_df, rail_df = breeze_load.split_frame(breeze_df)
     print("breeze loaded", time.time() - t0)
     # loading apc
     apc_load = APC_Loader(odx.network)
-    apc_path = os.path.join(fileDir, 'Data/apc_test.pick')
+    apc_path = os.path.join(fileDir, 'Data/apc_test.csv')
     apc_df = apc_load.load_apc(apc_path)
     apc_df = apc_load.join_megas(apc_df)
     print("apc loaded", time.time() - t0)

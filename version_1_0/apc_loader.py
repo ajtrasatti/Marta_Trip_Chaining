@@ -14,17 +14,20 @@ class APC_Loader:
         """
         self.network = network
 
-    def load_apc(self,path):
+    def load_apc(self,filename):
         """
 
         :param path:
         :return:
         """
-        import pickle
-        x = pickle.Unpickler("apc_test.pick")
-        print(x.load().head())
+        # import pickle
+        # x = pickle.Unpickler("apc_test.pick")
+        # print(x.load().head())
+        #
+        # return pd.read_pickle(path)
 
-        return pd.read_pickle(path)
+        print(filename)
+        return pd.read_csv(filename, parse_dates=["ARRIVAL_DTM"])
 
 
     def get_route_tree(self,route_id):
@@ -80,7 +83,7 @@ class APC_Loader:
         :param bus_df:
         :return:
         """
-        print(bus_df.columns)
+        # print(bus_df.columns)
         times = list(bus_df.ARRIVAL_DTM)
         stops = list(bus_df.MEGA_STOP)
         routes = list(bus_df.ROUTE_ABBR)
