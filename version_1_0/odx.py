@@ -65,6 +65,26 @@ class ODX:
         cal = pd.read_csv(join(gtfs_path, 'calendar.txt'))
         self.gtfs = {"trips": trips, 'stops': stops, "stop_times": stop_times, "routes": routes, 'calendar': cal}
 
+    def preprocess_gtfs(self, day):
+        """
+        @document
+        :param day:
+        :return:
+        """
+        self.MegaStopFactory = MegaStopFac(MAX_DIST)
+        self.scheduler = schedule.ScheduleMaker(self.gtfs['trips'],self.gtfs['calendar'],
+                              self.gtfs['stop_times'],self.gtfs['stops'],self.gtfs['routes'])
+        self.scheduler.build_daily_table(day)
+        routes, train_dict = self.scheduler.get_routes()
+        route_ms = {}
+        for route in routes.keys():
+            _ = self.MegaStopFactory.get_mega_stops(routes[route][0],routes[route][1])
+            route_ms[route] = _
+        rsf = RailStopFac(MAX_DIST,self.MegaStopFactory.count)
+        route_ms["RAIL"] = rsf.get_rail_stops(train_dict)
+        self.megas = route_ms
+        return route_ms
+
     def load_apc(self, apc_path):
         """
         Need to build a script to break these apart and store in seperate data buckets.
@@ -85,25 +105,7 @@ class ODX:
         """
         self.breeze = pd.read_pickle(join(self.data_path, 'breeze.csv'))
 
-    def preprocess_gtfs(self, day):
-        """
-        @document
-        :param day:
-        :return:
-        """
-        self.MegaStopFactory = MegaStopFac(MAX_DIST)
-        self.scheduler = schedule.ScheduleMaker(self.gtfs['trips'],self.gtfs['calendar'],
-                              self.gtfs['stop_times'],self.gtfs['stops'],self.gtfs['routes'])
-        self.scheduler.build_daily_table(day)
-        routes, train_dict = self.scheduler.get_routes()
-        route_ms = {}
-        for route in routes.keys():
-            _ = self.MegaStopFactory.get_mega_stops(routes[route][0],routes[route][1])
-            route_ms[route] = _
-        rsf = RailStopFac(MAX_DIST,self.MegaStopFactory.count)
-        route_ms["RAIL"] = rsf.get_rail_stops(train_dict)
-        self.megas = route_ms
-        return route_ms
+
 
     def export_megas(self, path_out):
         """
@@ -179,7 +181,7 @@ class ODX:
         """
         pass
 
-def main():
+def main(): # day and files
     import time
     t0 = time.time()
 
@@ -229,7 +231,7 @@ def main():
     map_df = loader.fit_2_network(map_df, odx.network)
     rail_df = breeze_load.match_rail_stops(rail_df, map_df)
 
-    df = pd.concat([bus_df, rail_df])
+    df = pd.concat([bus_df, rail_df],sort=False)
 
 
 

@@ -25,7 +25,17 @@ In this we want to use our functions to:
 
 def main():
 	import odx
-	odx.main() # create new trips file 
+	# gtsf preprocess
+
+	# odx.main(gtsf_file, apc_file,breeze_file) # create new apc file with megas
+
+	# smooth apc files
+
+	#
+
+
+
+	odx.main()
 
 
 if __name__ == "__main__":

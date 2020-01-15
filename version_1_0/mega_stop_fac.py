@@ -128,7 +128,7 @@ class MegaStopFac:
         :param stops: list, [stop1,stop2]
         :return: [megas_stop1, mega_stop2]
 
-        @ Todo : update to the R and B 
+        @ Todo : update to the R and B 6
         """
         mega_stops= []
         for group in groups.values():

@@ -57,9 +57,10 @@ class APC_Loader:
                 x.append(ms.id)
             else:
                 bad += 1
-                x.append("NOT_FOUND")
+                x.append("NO_ROUTE_INFO") # IF ROUTE NOT FOUND IN GTSF
         if test:
             return bad
+        print("NOT FOUND PERCENT IN APC LOADER", bad/len(apc_df))
         apc_df.insert(len(apc_df.columns),"MEGA_STOP",x)
         return apc_df
 
