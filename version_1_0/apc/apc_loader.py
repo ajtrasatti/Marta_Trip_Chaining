@@ -1,6 +1,6 @@
 
 import pandas as pd
-import BusSearch
+from .bus_search import BusSearch
 
 class APC_Loader:
     """
@@ -88,7 +88,7 @@ class APC_Loader:
         times = list(bus_df.ARRIVAL_DTM)
         stops = list(bus_df.MEGA_STOP)
         routes = list(bus_df.ROUTE_ABBR)
-        return BusSearch.BusSearch(stops, routes, times)
+        return BusSearch(stops, routes, times)
 
     def build_search_dict(self, apc_df):
         """
