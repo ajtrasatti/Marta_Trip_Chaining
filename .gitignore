@@ -5,7 +5,7 @@ OldPipeline/
 OldPipeline.zip
 *.pick
 *__pycache__/
-version_1_0/unused/
+
 .idea/
 .ipynb_checkpoints/
 
