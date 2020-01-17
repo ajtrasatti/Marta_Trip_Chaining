@@ -26,7 +26,6 @@ class APC_Loader:
         #
         # return pd.read_pickle(path)
 
-        print(filename)
         return pd.read_csv(filename, parse_dates=["ARRIVAL_DTM"])
 
 

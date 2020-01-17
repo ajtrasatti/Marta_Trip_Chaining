@@ -117,18 +117,19 @@ class Breeze_Loader:
                     routes.append(_[2])
                 else:
                     removed.append(tup.bus_id)
-                    times.append(np.nan)
                     stops.append(np.nan)
+                    times.append(np.nan)
                     routes.append(np.nan)
             else:
                 removed.append(tup.bus_id)
-                times.append(np.nan)
                 stops.append(np.nan)
+                times.append(np.nan)
                 routes.append(np.nan)
 
         breeze_df.insert(len(breeze_df.columns),'MEGA_STOP', stops)
-        breeze_df.insert(len(breeze_df.columns),"APC_TIME", times)
-        breeze_df.insert(len(breeze_df.columns),"APC_ROUTES",routes)
+        # breeze_df.insert(len(breeze_df.columns),"APC_TIME", times)
+        # breeze_df.insert(len(breeze_df.columns),"APC_ROUTES",routes)
+
         return breeze_df
 
     def apc_test_stats(self, df):

@@ -19,7 +19,8 @@ from breeze_loader import Breeze_Loader
 from rail_mapping_loader import RailMappingLoader
 
 
-
+##############################
+# Global Parameters
 global MAX_DIST
 MAX_DIST = 700  # max distance between stops
 
@@ -71,17 +72,20 @@ class ODX:
         :param day:
         :return:
         """
-        self.MegaStopFactory = MegaStopFac(MAX_DIST)
+
         self.scheduler = schedule.ScheduleMaker(self.gtfs['trips'],self.gtfs['calendar'],
                               self.gtfs['stop_times'],self.gtfs['stops'],self.gtfs['routes'])
         self.scheduler.build_daily_table(day)
         routes, train_dict = self.scheduler.get_routes()
+
         route_ms = {}
+        self.MegaStopFactory = MegaStopFac(MAX_DIST)
         for route in routes.keys():
-            _ = self.MegaStopFactory.get_mega_stops(routes[route][0],routes[route][1])
-            route_ms[route] = _
-        rsf = RailStopFac(MAX_DIST,self.MegaStopFactory.count)
+            route_ms[route] = self.MegaStopFactory.get_mega_stops(routes[route][0],routes[route][1])
+
+        rsf = RailStopFac(MAX_DIST,self.MegaStopFactory.count) # @ TODO: put this into mega stop factory
         route_ms["RAIL"] = rsf.get_rail_stops(train_dict)
+
         self.megas = route_ms
         return route_ms
 
@@ -193,11 +197,11 @@ def main(): # day and files
     data_path = join(fileDir,"Data")
     output_path  = join(fileDir,"Output")
 
-
+    # GTSF
     odx.load_gtfs(join(data_path, 'gtfs')) # loading gtfs
     odx.preprocess_gtfs(start) # preprocessing gtfs data
     odx.build_network(MAX_DIST) # builidng a network
-    odx.export_megas(join(output_path, "megastops.csv"))
+    odx.export_megas(join(output_path, "megastops.csv")) # output stops to file
 
 
     # loading apc

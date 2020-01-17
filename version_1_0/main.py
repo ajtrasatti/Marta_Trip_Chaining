@@ -31,9 +31,7 @@ def main():
 
 	# smooth apc files
 
-	#
-
-
+	# run main
 
 	odx.main()
 
