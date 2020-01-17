@@ -3,7 +3,7 @@
 Pascal Van Henteryck Lab
 v_0.0
 """
-from StopBallTree import StopBallTree
+from .StopBallTree import StopBallTree
 
 class Route:
     """

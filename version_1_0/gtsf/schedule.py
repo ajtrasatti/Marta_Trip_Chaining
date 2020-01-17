@@ -5,7 +5,7 @@ v_0.0
 """
 
 from collections import defaultdict
-from stop import Stop, BusStop, TrainStop
+from .stop import Stop, BusStop, TrainStop
 
 class ScheduleMaker:
     """

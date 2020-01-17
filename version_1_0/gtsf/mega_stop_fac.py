@@ -6,8 +6,8 @@ v_0.0
 
 from sklearn.neighbors import BallTree
 from collections import defaultdict
-from stop import MegaStop
-from union_find import UnionFind
+from .stop import MegaStop
+from .union_find import UnionFind
 import numpy as np
 
 

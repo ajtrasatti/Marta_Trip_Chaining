@@ -5,7 +5,7 @@ v_0.0
 """
 import itertools as it
 import os
-from route import Route
+from .route import Route
 
 
 class Network:

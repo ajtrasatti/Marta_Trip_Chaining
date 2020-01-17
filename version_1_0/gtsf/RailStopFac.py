@@ -1,5 +1,5 @@
 
-from mega_stop_fac import MegaStopFac
+from .mega_stop_fac import MegaStopFac
 
 class RailStopFac:
 
