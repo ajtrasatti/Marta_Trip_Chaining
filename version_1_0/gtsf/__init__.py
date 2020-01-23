@@ -1,1 +1,1 @@
-from .gtfs_loader import GTFS_Loader
+from .gtfs_fac import GtfsFac

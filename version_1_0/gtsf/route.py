@@ -23,12 +23,12 @@ class Route:
         Question- double linked list, with direction
         :param stops:
         """
-        # we can use a list here that is specificd in a specific direction such as
-        #  inbound or outbound to insure we maintian directional selection
+        # we can use a list here that is in a specific direction such as
+        # inbound or outbound to insure we maintain directional selection
         self.id = id
-        self.stops = {stop.id: stop for stop in stops} # build dict
+        self.stops = {stop.id: stop for stop in stops}  # build dict
         self.tree = StopBallTree(stops)
-        self.order = [] # build list
+        self.order = []  # build list
         self.trans = {}
 
     def __str__(self):
@@ -36,6 +36,16 @@ class Route:
             f"id = {self.id}"
             f"stops = {','.join(self.stops.keys())}"
         )
+
+    def get_trans(self, other_id, stop_id):
+        """
+
+        :param stop:
+        :return:
+        """
+        return self.trans[other_id][stop_id]
+
+
 
     def get_stop(self, stop):
         """
@@ -52,16 +62,6 @@ class Route:
         :return:
         """
         pass
-
-    def get_trans(self, other_id, stop_id):
-        """
-
-        :param stop:
-        :return:
-        """
-        return self.trans[other_id][stop_id]
-
-
 
     def to_json(self):
         """

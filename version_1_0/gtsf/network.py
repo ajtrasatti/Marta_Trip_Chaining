@@ -20,11 +20,10 @@ class Network:
         to build a search tree to find the directory for a given day
     """
 
-    def __init__(self,routes_dict, dates=None,trans_limit=10):
+    def __init__(self, routes_dict, dates=None,trans_limit=10):
         """
 
-        :param routes: dict, containing route_name to route object
-        :param id: int, unique identifier for a given route
+        :param routes_dict: containing route_name to route object
         :param dates: tup, (dt.datetime, dt.datetime, weekend) used to determine which days are valid
         """
         # new function to build route_object
@@ -100,22 +99,27 @@ class NetworkBuilder:
         :return:
         """
 
-        for route1, route2 in it.combinations(routes.keys(),2):
-            #This line is error
-            _ = routes[route1].tree.query_radius(list(routes[route2].stops.values()),0,True)
-            routes[route1].trans[route2] = routes[route1].tree.query_radius(list(routes[route2].stops.values()),0,True)
-            routes[route2].trans[route1] = routes[route2].tree.query_radius(list(routes[route1].stops.values()),0,True)
+        for route1, route2 in it.combinations(routes.keys(), 2):
 
+            # routes[route1] is a route object
+            # .tree is its stop ball tree
+            # .query_radius() is a stop ball tree function
 
-    def build(self,megas_dict, id):
+            # This line is error
+            _ = routes[route1].tree.query_radius(list(routes[route2].stops.values()), 0, True)
+            l1 = list(routes[route2].stops.values())
+            l2 = list(routes[route1].stops.values())
+            routes[route1].trans[route2] = routes[route1].tree.query_radius(l1, 0, True)
+            routes[route2].trans[route1] = routes[route2].tree.query_radius(l2, 0, True)
+
+    def build(self, megas_dict, id):
         """
 
         :param megas_dict: dic, containing "route_id": list like of stops
-        :param id: int,
-        :param dates:
+        :param id: int
         :return:
         """
-        routes_dict = {k: Route(k,v) for k, v in megas_dict.items()}
+        routes_dict = {k: Route(k, v) for k, v in megas_dict.items()}
         self.build_transitions(routes_dict)
         return Network(routes_dict, id)
 

@@ -1,35 +1,36 @@
-
 import pandas as pd
 from .bus_search import BusSearch
 
-class APC_Loader:
+
+class ApcLoader:
     """
     This file loads the apc data and preprocesses it
     """
 
-    def __init__(self,network = None):
+    def __init__(self, network=None):
         """
 
         :param network:
         """
         self.network = network
 
-    def load_apc(self,filename):
+    def load_apc(self, filename):
         """
-
-        :param path:
+        :param filename:
         :return:
         """
         # import pickle
         # x = pickle.Unpickler("apc_test.pick")
-        # print(x.load().head())
-        #
-        # return pd.read_pickle(path)
+        # return pd.read_pickle(x)
 
-        return pd.read_csv(filename, parse_dates=["ARRIVAL_DTM"])
+        # df = pd.read_csv(filename, parse_dates=["ARRIVAL_DTM"])
+        df = pd.read_csv(filename)
+        df.ARRIVAL_DTM = pd.to_datetime(df.ARRIVAL_DTM, format="%Y-%m-%d %H:%M:%S")
 
 
-    def get_route_tree(self,route_id):
+        return df
+
+    def get_route_tree(self, route_id):
         """
 
         :param route_id:
@@ -56,11 +57,11 @@ class APC_Loader:
                 x.append(ms.id)
             else:
                 bad += 1
-                x.append("NO_ROUTE_INFO") # IF ROUTE NOT FOUND IN GTSF
+                x.append("NO_ROUTE_INFO")  # IF ROUTE NOT FOUND IN GTSF
         if test:
             return bad
-        print("NOT FOUND PERCENT IN APC LOADER", bad/len(apc_df))
-        apc_df.insert(len(apc_df.columns),"MEGA_STOP",x)
+        print("NOT FOUND PERCENT IN APC LOADER", bad / len(apc_df))
+        apc_df.insert(len(apc_df.columns), "MEGA_STOP", x)
         return apc_df
 
     def combine_stops(self, apc_df, time_limit):
@@ -71,13 +72,13 @@ class APC_Loader:
         """
         for name, group in apc_df.groupby.VECHILE_TAG:
             group = group.sort_values(by='ARRIVAL_DTM')
-            #calculates lag for the group
+            # calculates lag for the group
 
             # checks to see if lag and stop meet constraints
 
             # adds together
 
-    def build_bus_search(self,bus_df):
+    def build_bus_search(self, bus_df):
         """
         This
         :param bus_df:
@@ -96,9 +97,3 @@ class APC_Loader:
         :return:
         """
         return {name: self.build_bus_search(group) for name, group in apc_df.groupby("VECHILE_TAG")}
-
-
-
-
-
-
