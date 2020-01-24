@@ -10,8 +10,6 @@ from .stop import MegaStop
 from .union_find import UnionFind
 import numpy as np
 
-
-
 class MegaStopFac:
     """
     This is the MegaStop factory class which builds megastops when given data
@@ -128,7 +126,7 @@ class MegaStopFac:
         :param stops: list, [stop1,stop2]
         :return: [megas_stop1, mega_stop2]
 
-        @ Todo : update to the R and B 6
+        @ Todo : update to the R and B
         """
         mega_stops= []
         for group in groups.values():

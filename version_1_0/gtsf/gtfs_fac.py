@@ -1,4 +1,4 @@
-from .gtfs_loader import GtfsLoader
+from .gtfs import GTFS
 from os.path import join
 import os
 import datetime as dt
@@ -35,23 +35,37 @@ class GtfsFac:
         :param mega_stops_file:  will be added so that mega stop names stay consistent over time (file can be appended)
         """
 
-        self.folders = [name for name in os.listdir(folder_path) if os.path.isdir(name)] # list of folders in directory
-        self.dates = [dt.datetime(name[-4:], name[-10:-8], name[-7:-5]) for name in self.folders]  # ex. gtfs_mm_dd_YYYY
+        self.folders = [name for name in os.listdir(folder_path) if os.path.isdir(join(folder_path,name))]  # list of folders in directory
+
+        to_dt = lambda folder_name: dt.datetime(int(folder_name[-4:]), int(folder_name[-10:-8]), int(folder_name[-7:-5]))
+        self.dates = sorted([to_dt(name) for name in self.folders])  # ex. gtfs_mm_dd_YYYY
+        print(self.dates)
         self.gtfs_dict = {}
         self.stops = {}
         self.megas = {}  # or []??
 
         for folder, date in zip(self.folders, self.dates):
-            self.gtfs_dict[date] = GtfsLoader(join(folder_path, folder), date)
+            self.gtfs_dict[date] = GTFS(join(folder_path, folder), date)
 
             # self.stops = ??
             # self.megas = append??
 
     def get_gtfs_network(self, date):
         ind = bisect.bisect_right(self.dates, date) - 1  # find index of last date that the gtfs data was updated
+        print(self.dates, date)
+        print("ind", ind)
         ind_date = self.dates[ind]  # get the date to use as index for gtfs dictionary
-        print("date, ind_date", date, ind_date)
+        print("date, ind_date", ind_date, date)
         return self.gtfs_dict[ind_date].get_network(date)
+
+    def get_gtfs_routes_dict(self,date):
+        return self.get_gtfs_network(date).routes_dict
 
     def get_megas(self):
         return self.megas
+
+    def export_megas(self, filename, date):
+        self.gtfs_dict[date].export_megas(filename, date)
+
+
+

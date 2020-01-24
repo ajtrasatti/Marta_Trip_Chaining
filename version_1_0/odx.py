@@ -6,75 +6,58 @@ v_0.0
 @todo Output error stats to a file using an error class
 """
 
+import os
 from os.path import join, realpath
 import datetime as dt
 import pandas as pd
 from gtsf import GtfsFac
-from apc import ApcLoader
+from apc import APC
 from breeze_loader import BreezeLoader
 from rail_mapping_loader import RailMappingLoader
 
 
-class ODX:
-    """
-    This is the odx class which has the main
-    Attributes
-        - start -
-        - end -
-        - test
-        -
-    """
-    def __init__(self, start, end, test=True, **kwargs):
-        """
+# class ODX:
+#     """
+#     This is the odx class which has the main
+#     Attributes
+#         - start -
+#         - end -
+#         - test
+#         -
+#     """
+#     def __init__(self, start, end, test=True, **kwargs):
+#         """
+#
+#         :param start: string, with time of the period that starts
+#         :param end: string, with time of the period that starts
+#         :param test: bool, determine wether to run the function in test mode with preset parameters
+#         :param kwargs:
+#         """
+#         # fileDir = realpath(__file__).split('/version')[0]
+#         # self.data_path = join(fileDir, 'Data')
+#         # self.megas = None
 
-        :param start: string, with time of the period that starts
-        :param end: string, with time of the period that starts
-        :param test: bool, determine wether to run the function in test mode with preset parameters
-        :param kwargs:
-        """
-        # fileDir = realpath(__file__).split('/version')[0]
-        # self.data_path = join(fileDir, 'Data')
-        # self.megas = None
 
-
-def main():  # data, gtsf_path, ):  # day and files
+def trip_chaining(gtfs, day, data_path, rail_path):  # data, gtsf_path, ):  # day and files
     """
-    :param date: used for name of folders/path
-    :param gtsf_path: point to the gtsf path
-    :param apc_filename: string, with time of the period that starts
-    :param breeze_filename: bool, determine whether to run the function in test mode with preset parameters
+    :param gtfs: GTFS Factory object
+    :param day: date_time object
+    :param data_path: folder that contains apc_test.csv, breeze.csv
     """
     import time
     t0 = time.time()
 
-    start_day = dt.datetime.strptime("01/30/18 00:00", "%m/%d/%y %H:%M")
-    # end_day = dt.datetime.strptime("01/31/18 00:00", "%m/%d/%y %H:%M")
-    # odx = ODX(start_day,end_day)
-
-    file_dir = realpath(__file__).split('/version')[0]
-    data_path = join(file_dir, "Data")
-    output_path = join(file_dir, "Output")
-
-    # GTFS
-
-    # # gtfs_loader = GtfsLoader(join(data_path, 'gtfs'), start_day)
-    # # gtfs_loader.export_megas(join(output_path, "mega_stops.csv"))  # output stops to file
-    # # network = gtfs_loader.return_network()
-
-    gtfs = GtfsFac(join(data_path, 'MARTA_gtfs'))  # @todo: probably move this one level higher
-    network = gtfs.get_gtfs_network(start_day)
-    # gtfs.export_megas  # @todo: export the megas that go over all the days
+    routes_dict = gtfs.get_gtfs_routes_dict(day)
+    print("got_routes_dict", time.time() - t0)
+    # gtfs.export_megas(join(data_path, "mega_stops.csv"), day)  # @todo: export the megas that go over all the days
 
     # loading apc
-    apc_load = ApcLoader(network)
-    apc_path = join(data_path, 'apc_test.csv')
-    apc_df = apc_load.load_apc(apc_path)
-    # print("apc loaded", time.time() - t0)
-    apc_df = apc_load.join_megas(apc_df)
-    # print("joined mega on apc df", time.time() - t0)
-    apc_df.to_csv(join(output_path, 'apc_output.csv'), index=False)
+    apc_file = join(data_path, 'apc_test.csv')
+    apc = APC(apc_file)
+    apc.join_megas(routes_dict)
+    apc.export_apc_df(join(data_path, 'apc_output.csv'))
     print("apc complete", time.time() - t0)
-    bus_dict = apc_load.build_search_dict(apc_df)
+    bus_search_dict = apc.get_bus_search_dict()
 
     # breeze load
     breeze_path = join(data_path, 'breeze_test.csv')  # loading breeze
@@ -86,22 +69,42 @@ def main():  # data, gtsf_path, ):  # day and files
     print("breeze loaded", time.time() - t0)
 
     # Matching breeze BUS data to apc bus search dict
-    bus_df = breeze_load.apc_match(bus_df, bus_dict)
+    bus_df = breeze_load.apc_match(bus_df, bus_search_dict)
 
     # Matching breeze RAIL data rail stops in rail_df
-    path = join(data_path, 'RailStopsMap.csv')
     loader = RailMappingLoader()
-    map_df = loader.load_rail_mappings(path)
+    map_df = loader.load_rail_mappings(rail_path)
     map_df = loader.clean_rail_mappings(map_df)
-    map_df = loader.fit_2_network(map_df, network)
+    map_df = loader.fit_2_network(map_df, routes_dict)
     rail_df = breeze_load.match_rail_stops(rail_df, map_df)
 
     df = pd.concat([bus_df, rail_df], sort=False)
 
-    df.to_csv(join(output_path, 'breeze_output.csv'), index=False)
+    df.to_csv(join(data_path, 'breeze_output.csv'), index=False)
     print(df.head())
+
+
+def main():
+    file_dir = realpath(__file__).split('/version')[0]
+    my_path = join(file_dir, "Data")
+    rail_path = join(my_path, 'RailStopsMap.csv')
+    gtfs = GtfsFac(join(my_path, 'MARTA_gtfs'))
+    # print("made_gtsf", time.time() - t0) # about 30 secs
+
+    folder_path = join(my_path, "partitioned")
+    # list of folders in directory
+    folders = [name for name in os.listdir(folder_path) if os.path.isdir(join(folder_path, name))]
+
+    def to_dt(folder):  # This is for the specific folder format that is being used
+        x = folder.split("_")
+        return dt.datetime(int(x[0]), int(x[1]), int(x[2]))
+
+    dates = sorted([to_dt(folder) for folder in folders])
+    for date in dates:
+        print("Processing ", date)
+        data_path = join(my_path, "partitioned", str(date.year) + "_" + str(date.month) + "_" + str(date.day))
+        trip_chaining(gtfs, date, data_path, rail_path)
 
 
 if __name__ == '__main__':
     main()
-

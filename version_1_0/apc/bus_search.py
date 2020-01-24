@@ -1,14 +1,21 @@
 import bisect
 
-class BusSearch:
 
-    def __init__(self, stops, routes, times, id=None):
-        time_tups = sorted([(i,t) for i, t in enumerate(times)],key=lambda x: x[1])
-        self.times = [t for id,t in time_tups]
-        self.ids = [id for id,t in time_tups]
+class BusSearch:
+    """
+    BusSearch is used by the breeze loader to find what bus the person got on
+    """
+
+    def __init__(self, bus_df):  # , id=None):
+        times = list(bus_df.ARRIVAL_DTM)
+        stops = list(bus_df.MEGA_STOP)
+        routes = list(bus_df.ROUTE_ABBR)
+        time_tups = sorted([(i, t) for i, t in enumerate(times)], key=lambda x: x[1])
+        self.times = [t for ind, t in time_tups]
+        self.ids = [ind for ind, t in time_tups]
         self.stops = stops
         self.routes = routes
-        self.id = id
+        # self.id = id
 
     def find_time_index(self, time):
         """

@@ -56,13 +56,13 @@ class BreezeLoader:
         rail_df.insert(len(rail_df.columns), 'STOP',
                        rail_df.ctl_grp_short_desc.str.split('-').apply(lambda x: x[1].strip()))
         rail_df.update(rail_df.STOP.str.upper())
-        print(rail_df.head())
-        print(rail_mapping.head())
+        # print(rail_df.head())
+        # print(rail_mapping.head())
         _ = rail_df.merge(rail_mapping,left_on='STOP',right_on='stop_name')
-        print(_.columns)
+        # print(_.columns)
         header = ['Serial_Nbr', 'Transaction_dtm', 'Dev_Operator', 'ctl_grp_short_desc', 'use_type_desc', 'bus_id',
                   'route_no', 'route_name', 'MEGA_STOP']
-        print("MEGA_STOP" in _.columns)
+        # print("MEGA_STOP" in _.columns)
         return _[header]
         #return _
 

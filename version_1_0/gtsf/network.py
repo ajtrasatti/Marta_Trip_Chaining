@@ -20,55 +20,83 @@ class Network:
         to build a search tree to find the directory for a given day
     """
 
-    def __init__(self, routes_dict, dates=None,trans_limit=10):
+    def __init__(self, route_mega_dict, trans_limit, service_id, dates=None):
         """
 
-        :param routes_dict: containing route_name to route object
+        :param route_mega_dict: dictionary {route_id : [stops]}
+        :param trans_limit: max distance allowed for transition
         :param dates: tup, (dt.datetime, dt.datetime, weekend) used to determine which days are valid
+
+        create routes_dict : containing route_name to route object
+        build transitions so you can use get transition function
         """
-        # new function to build route_object
-        self.routes = routes_dict
-        self.dates = dates
 
+        self.trans_limit = trans_limit
+        self.routes_dict = {route_id: Route(route_id, stops) for route_id, stops in route_mega_dict.items()}
+        # self.build_transitions()
+        # self.service_id = service_id
+        # self.dates = dates
 
+    # def build_transitions(self, route_mega_dict):
+    #     """
+    #     :param route_mega_dict: dictionary {route_id : [MegaStop]}
+    #     :return: routes_dict: {route_id : Route(route_id,[MegaStop])}
+    #     """
+    #     routes_dict =
+    #
+    #     # for route1, route2 in it.combinations(routes_dict.keys(), 2):
+    #     #     # routes[route1] is a Route object
+    #     #     l1 = list(routes_dict[route2].stops.values())
+    #     #     l2 = list(routes_dict[route1].stops.values())
+    #     #
+    #     #     stop_ball_tree = routes_dict[route1].tree
+    #     #     routes_dict[route1].trans[route2] = stop_ball_tree.query_radius(l1, self.trans_limit, True)
+    #     #     stop_ball_tree = routes_dict[route2].tree
+    #     #     routes_dict[route2].trans[route1] = stop_ball_tree.query_radius(l2, self.trans_limit, True)
+    #
+    #     return routes_dict
 
-    def find_stop(self,route_id,stop_id):
+    def find_stop(self, route_id, stop_id):
         """
         This function finds a given stop given its identifiers
         :param route_id:
         :param stop_id:
-        :return:
+        :return: MegaStop
         """
-        return self.routes[route_id].stops[stop_id]
+        return self.routes_dict[route_id].stops[stop_id]
 
-    def get_transition(self,route_id,stop_id):
-        """
-        look up a route_id, stop_id and get the valid transitions
-        :param route_id:
-        :param stop_id:
-        :return:
-        """
-        if stop_id in self.routes[route_id].trans:
-            return self.routes[route_id].trans[stop_id]
-        else:
-            return []
 
-    def export_transition(self, path):
-        """
-        This is a test functi
-        :param path:
-        :return:
-        """
-        cur = os.path.abspath(os.getcwd())
-        test = os.path.abspath(os.path.join(cur,'Test'))
-        with open(os.path.join(test,path),'w') as fout:
-            import csv
-            writer = csv.writer(fout)
-            writer.writerow(['ROUTE','STOP_ID','TRANS_STOPS'])
-            for id, r in self.routes.items():
-                for s,o in r.trans.items():
-                    writer.writerow([id,str(s),[str(x) for x in o]])
-
+    # def get_transition(self, route_id1, route_id2, stop_id):
+    #     """
+    #     look up a route_id, stop_id and get the valid transitions
+    #     :param route_id:
+    #     :param stop_id:
+    #
+    #     transitions is the return of the StopBallTree query_radius function
+    #
+    #     :return: list of possible transitions from that route_id1 to stop_id
+    #     """
+    #     transitions = self.routes_dict[route_id1].trans[route_id2]  #
+    #     if stop_id in transitions:
+    #         return transitions[stop_id]
+    #     else:
+    #         return []
+    #
+    # def export_transition(self, path):
+    #     """
+    #     This is a test functi
+    #     :param path:
+    #     :return:
+    #     """
+    #     cur = os.path.abspath(os.getcwd())
+    #     test = os.path.abspath(os.path.join(cur,'Test'))
+    #     with open(os.path.join(test,path),'w') as fout:
+    #         import csv
+    #         writer = csv.writer(fout)
+    #         writer.writerow(['ROUTE','STOP_ID','TRANS_STOPS'])
+    #         for ind, r in self.routes_dict.items():
+    #             for s, o in r.trans.items():
+    #                 writer.writerow([ind, str(s), [str(x) for x in o]])
 
     def to_json(self,path_out):
         """
@@ -80,46 +108,3 @@ class Network:
 
     def to_pickle(self,path_out):
         pass
-
-
-class NetworkBuilder:
-    """
-    This implements the Builder function
-    """
-
-    def __init__(self, trans_limit):
-        self.trans_limit = trans_limit
-
-    def build_transitions(self, routes):
-        """
-        @redesign for
-        @optimize
-        @test
-        :param routes:
-        :return:
-        """
-
-        for route1, route2 in it.combinations(routes.keys(), 2):
-
-            # routes[route1] is a route object
-            # .tree is its stop ball tree
-            # .query_radius() is a stop ball tree function
-
-            # This line is error
-            _ = routes[route1].tree.query_radius(list(routes[route2].stops.values()), 0, True)
-            l1 = list(routes[route2].stops.values())
-            l2 = list(routes[route1].stops.values())
-            routes[route1].trans[route2] = routes[route1].tree.query_radius(l1, 0, True)
-            routes[route2].trans[route1] = routes[route2].tree.query_radius(l2, 0, True)
-
-    def build(self, megas_dict, id):
-        """
-
-        :param megas_dict: dic, containing "route_id": list like of stops
-        :param id: int
-        :return:
-        """
-        routes_dict = {k: Route(k, v) for k, v in megas_dict.items()}
-        self.build_transitions(routes_dict)
-        return Network(routes_dict, id)
-

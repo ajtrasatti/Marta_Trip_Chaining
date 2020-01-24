@@ -25,16 +25,16 @@ class RailMappingLoader:
                                               'stop_name'],inplace=True)
         return rail_mappings
 
-    def fit_2_network(self, rail_mappings, network):
+    def fit_2_network(self, rail_mappings, routes_dict):
         """
 
         :param rail_mappings:
-        :param network:
+        :param routes_dict:
         :return:
         """
         x = []
         for _ in rail_mappings.itertuples():
-            route = network.routes["RAIL"]
+            route = routes_dict["RAIL"]
             stop = route.tree.query_point(_.stop_lat,_.stop_lon)
             x.append(stop.id)
         rail_mappings.insert(len(rail_mappings.columns), "MEGA_STOP", x)

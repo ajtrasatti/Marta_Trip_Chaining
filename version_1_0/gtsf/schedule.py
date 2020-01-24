@@ -14,99 +14,74 @@ class ScheduleMaker:
     attributes:
     """
 
-    def __init__(self, trips, calendar, stop_times, stops, routes):
+    def __init__(self, trips, stop_times, stops, routes, service_id):
         """
-
         :param trips: pd.DataFrame that coresponds to the trips table in the gtfs data set
         :param calendar: pd.DataFrame that corresponds to the calendar table in the gtfs data set
         :param stop_times: pd.DataFrame that coresponds to the stop_times table in the gtfs data set
         :param stops: pd.DataFrame that corresponds to the stops table in the gtfs data set
         :param routes: pd.DataFrame that corresponds to the routes table in the gtfs data set
+        :param service_id: (3,4,5) from gtfs calendar representing (saturday,sunday, or weekday) resp.
         """
-        self.trips = trips
-        self.cal = calendar
-        self.stop_times = stop_times
-        self.stops = stops
-        self.routes = routes
 
-    def build_daily_table(self, day, split=True):
-        """
-        Builds a schedule table for a day of gtfs data
-        :param day: dt.DateTime object that contains the day of interest
-        :param split: Boolean, default true, returns the dataframe split into a bus or train set
-        :return: if split - return tuple of pd.Data frame (train_table,bus_table) other was weekly schedule
-        """
-        service_id = self.get_service_id(day)
-        trip_w_routes = self.trips[self.trips.service_id == service_id].merge(
-            self.routes[['route_id', 'route_short_name']],
+        self.gtfs_trips = trips
+        self.gtfs_stop_times = stop_times
+        self.gtfs_stops = stops
+        self.gtfs_routes = routes
+        self.service_id = service_id
+
+        trip_w_routes = self.gtfs_trips[self.gtfs_trips.service_id == service_id].merge(
+            self.gtfs_routes[['route_id', 'route_short_name']],
             on=['route_id'])
-        route_stops = self.stop_times.merge(
+        route_stops = self.gtfs_stop_times.merge(
             trip_w_routes[['route_id', 'trip_id', 'direction_id', 'block_id', 'route_short_name', 'service_id']],
             on=['trip_id'])
-        self.route_stops = route_stops.merge(self.stops[['stop_id', 'stop_lat', 'stop_lon']])
+        self.route_stops = route_stops.merge(self.gtfs_stops[['stop_id', 'stop_lat', 'stop_lon']])
 
-        if split:
-            self.train_table = self.route_stops[
-                self.route_stops.route_short_name.isin(['RED', 'BLUE', 'GREEN', 'GOLD'])]
-            self.bus_table = self.route_stops[
-                ~(self.route_stops.route_short_name.isin(['RED', 'BLUE', 'GREEN', 'GOLD']))]
-            return self.train_table, self.bus_table
-        else:
-            return route_stops
+        self.train_table = self.route_stops[
+            self.route_stops.route_short_name.isin(['RED', 'BLUE', 'GREEN', 'GOLD'])]
+        self.bus_table = self.route_stops[
+            ~(self.route_stops.route_short_name.isin(['RED', 'BLUE', 'GREEN', 'GOLD']))]
 
-    def get_service_id(self, day):
-        """
-        Finds the specific service type for a given day
-        :param day: dt.DateTime object containing the date of the rest
-        :return: int, the service type of the
-        @@ TODO add exceptions for calendar_dates.txt
-        """
-        day_o_week = day.weekday()
-        for tup in self.cal.itertuples():
-            if tup[day_o_week + 2] == 1:
-                return tup.service_id
-
-    def build_stops(self, df):
+    def get_stops(self, split = True):
+        # @ todo export stops
         """
         :param df:
         :return:
         """
-        for group_name, stop_df in df.groupby(['route_short_name', 'direction_id']):
-            self.route_dict[group_name[0]][group_name[1]] = [BusStop(s.stop_id, s.stop_lat, s.stop_lon) for s in
-                                                             stop_df.itertuples()]
-        return self.route_dict
+        cols = ['route_short_name', 'direction_id', 'stop_id', 'stop_lat', 'stop_lon']
+        if split:
+            bus = self.bus_table.drop_duplicates(subset=cols)
+            bus = bus[cols]
+            train = self.train_table.drop_duplicates(subset=cols)
+            train = train[cols]
+            return bus, train
+        else:
+            return self.route_stops.drop_duplicates(subset=cols)
 
-    def build_train_stops(self, train_df):
+    def build_bus_stops(self, bus_df):
+        """
+        :param df:
+        :param route_names:
+        :return:
+        """
+        route_names = bus_df.route_short_name.drop_duplicates()
+        route_dict = {route: defaultdict(list) for route in route_names}
+        for group_name, stop_df in bus_df.groupby(['route_short_name', 'direction_id']):
+            route_dict[group_name[0]][group_name[1]] = [BusStop(s.stop_id, s.stop_lat, s.stop_lon)
+                                                        for s in stop_df.itertuples()]
+        return route_dict
+
+    def build_train_stop_dict(self, train_df):
         """
         :param train_df:
         :return:
         """
-        _ = []
-        # group these together at
-        for group_name, s in train_df.groupby('stop_id'):
-            _.append(TrainStop(group_name, s.stop_lat.mean(),
-                               s.stop_lon.mean(), s['route_short_name'].tolist()))
-        return _
-
-    def build_train_stop_dict(self, train_df):
-        _ = {}
+        train_dict = {}
         for group_name, stops in train_df.groupby('route_short_name'):
-            _[group_name] = [TrainStop(group_name, s.stop_lat, s.stop_lon, group_name)
-                             for s in stops.itertuples()]
-        return _
-
-    def get_stops(self):
-        """
-        
-        :param df: 
-        :return: 
-        """
-        cols = ['route_short_name', 'direction_id', 'stop_id', 'stop_lat', 'stop_lon']
-        bus = self.bus_table.drop_duplicates(subset=cols)
-        bus = bus[cols]
-        train = self.train_table.drop_duplicates(subset=cols)
-        train = train[cols]
-        return bus, train
+            train_dict[group_name] = [TrainStop(group_name, s.stop_lat, s.stop_lon, group_name)
+                                      for s in stops.itertuples()]
+        return train_dict
 
     def get_routes(self):
         """
@@ -116,9 +91,8 @@ class ScheduleMaker:
         # take the schedule and get all of the unique (route,stop, directions)
         bus_df, train_df = self.get_stops()
         # train_df.to_csv("train_df.csv")
-        route_names = bus_df.route_short_name.drop_duplicates()
-        self.route_dict = {route: defaultdict(list) for route in route_names}
-        return self.build_stops(bus_df), self.build_train_stop_dict(train_df)
+
+        return self.build_bus_stops(bus_df), self.build_train_stop_dict(train_df)
 
     def get_trains_dict(self):
         """"""

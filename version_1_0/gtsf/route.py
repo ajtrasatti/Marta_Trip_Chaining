@@ -5,6 +5,7 @@ v_0.0
 """
 from .StopBallTree import StopBallTree
 
+
 class Route:
     """
     This is the route class which contains the set of stops that map
@@ -18,18 +19,18 @@ class Route:
     - be visualized using folium
     """
 
-    def __init__(self, id, stops):
+    def __init__(self, route_id, stops):
         """
         Question- double linked list, with direction
         :param stops:
         """
         # we can use a list here that is in a specific direction such as
         # inbound or outbound to insure we maintain directional selection
-        self.id = id
+        self.id = route_id
         self.stops = {stop.id: stop for stop in stops}  # build dict
         self.tree = StopBallTree(stops)
         self.order = []  # build list
-        self.trans = {}
+        # self.trans = {}
 
     def __str__(self):
         return (
@@ -37,42 +38,39 @@ class Route:
             f"stops = {','.join(self.stops.keys())}"
         )
 
-    def get_trans(self, other_id, stop_id):
-        """
+    # def get_trans(self, other_id, stop_id):
+    #     """
+    #
+    #     :param stop:
+    #     :return:
+    #     """
+    #     return self.trans[other_id][stop_id]
 
-        :param stop:
-        :return:
-        """
-        return self.trans[other_id][stop_id]
-
-
-
-    def get_stop(self, stop):
-        """
-
-        :param stop:
-        :return:
-        """
-        return self.stops[stop]
-
-    def get_valid_exits(self, stop):
-        """
-        This function takes a specific stop and return
-        :param stop_id:
-        :return:
-        """
-        pass
-
-    def to_json(self):
-        """
-
-        :return:
-        """
-        pass
-
-    def to_pickle(self):
-        """
-
-        :return:
-        """
-        pass
+    # def get_stop(self, stop):
+    #     """
+    #     :param stop:
+    #     :return:
+    #     """
+    #     return self.stops[stop]
+    #
+    # def get_valid_exits(self, stop):
+    #     """
+    #     This function takes a specific stop and return
+    #     :param stop_id:
+    #     :return:
+    #     """
+    #     pass
+    #
+    # def to_json(self):
+    #     """
+    #
+    #     :return:
+    #     """
+    #     pass
+    #
+    # def to_pickle(self):
+    #     """
+    #
+    #     :return:
+    #     """
+    #     pass
