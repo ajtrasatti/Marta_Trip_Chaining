@@ -27,17 +27,19 @@ class RailMappingLoader:
 
     def fit_2_network(self, rail_mappings, routes_dict):
         """
+        This function adds the mega_stop column for the rail mappings
 
         :param rail_mappings:
         :param routes_dict:
         :return:
         """
         x = []
-        for _ in rail_mappings.itertuples():
+        for row in rail_mappings.itertuples():
             route = routes_dict["RAIL"]
-            stop = route.tree.query_point(_.stop_lat,_.stop_lon)
+            stop = route.tree.query_point(row.stop_lat, row.stop_lon)
             x.append(stop.id)
-        rail_mappings.insert(len(rail_mappings.columns), "MEGA_STOP", x)
-        print(rail_mappings.head())
+        rail_mappings["MEGA_STOP"] = x
+
+        # print(rail_mappings.head())
         return rail_mappings
 

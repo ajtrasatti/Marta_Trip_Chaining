@@ -43,6 +43,7 @@ def trip_chaining(gtfs, day, data_path, rail_path):  # data, gtsf_path, ):  # da
     :param gtfs: GTFS Factory object
     :param day: date_time object
     :param data_path: folder that contains apc_test.csv, breeze.csv
+    :param rail_path: folder that contains apc_test.csv, breeze.csv
     """
     import time
     t0 = time.time()
@@ -73,10 +74,11 @@ def trip_chaining(gtfs, day, data_path, rail_path):  # data, gtsf_path, ):  # da
 
     # Matching breeze RAIL data rail stops in rail_df
     loader = RailMappingLoader()
-    map_df = loader.load_rail_mappings(rail_path)
-    map_df = loader.clean_rail_mappings(map_df)
-    map_df = loader.fit_2_network(map_df, routes_dict)
-    rail_df = breeze_load.match_rail_stops(rail_df, map_df)
+    rail_mapping = loader.load_rail_mappings(rail_path)
+    rail_mapping = loader.clean_rail_mappings(rail_mapping)
+    rail_mapping = loader.fit_2_network(rail_mapping, routes_dict)
+
+    rail_df = breeze_load.match_rail_stops(rail_df, rail_mapping)
 
     df = pd.concat([bus_df, rail_df], sort=False)
 
@@ -100,7 +102,7 @@ def main():
         return dt.datetime(int(x[0]), int(x[1]), int(x[2]))
 
     dates = sorted([to_dt(folder) for folder in folders])
-    for date in dates:
+    for date in dates[0:10]:  # @todo : remove when want to run all
         print("Processing ", date)
         data_path = join(my_path, "partitioned", str(date.year) + "_" + str(date.month) + "_" + str(date.day))
         trip_chaining(gtfs, date, data_path, rail_path)

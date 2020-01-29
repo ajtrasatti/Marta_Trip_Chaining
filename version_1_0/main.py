@@ -1,39 +1,21 @@
-
-from os.path import join
-import numpy as np
-import pandas as pd
+import odx
 '''
-#####################
-In this we want to use our functions to:
-	1. Create clusters of stops (l-means clustering ?)
-	2. Chain the breeze card data to the apc data to the gtfs data
-			- 
-
-#####################
+Right now this file is just used to point out that 
+you want to look at the odx class for the main method
 '''
-# print(pd.Timestamp(1474934134,unit = 's'))
-
-
-# path = "../../MARTA_gtfs_12_08_2018"
-# df = pd.read_csv(join(path, "stops.txt"))
-
-# print(df.tail())
-# print(len(df))
-
-
 
 
 def main():
-	import odx
-	# gtsf preprocess
+	# first parse the files
+	# apc_data_partition.py
+	# breeze_data_partition.py
 
-	# odx.main(gtsf_file, apc_file,breeze_file) # create new apc file with megas
+	# creating rail mapping file (used by rail_mapping_loader.py)
+	# ex. (ex. entry = 'Gate - North Springs, North' -> NORTH SPRINGS)
 
-	# smooth apc files
-
-	# run main
-
+	# run main method
 	odx.main()
+
 
 
 if __name__ == "__main__":

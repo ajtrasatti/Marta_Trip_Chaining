@@ -18,13 +18,14 @@ class MegaStopFac:
         - count - the number of megastops made
     """
 
-    def __init__(self, limit):
+    def __init__(self, limit, ch='B'):
         """
         :param limit: float, that limits the values between stops
         """
         self.R = 3959.87433 * 5280 # radius of the earth in feet
         self.limit = limit
         self.count = 0
+        self.ch = ch  # character to put in front of megastop_id
 
     def build_ball_tree(self, inbound, outbound):
         """
@@ -75,6 +76,7 @@ class MegaStopFac:
         :return: list, of the partners
         """
         for i, dist in enumerate(out_dist):
+            # if the distance is greater than the limit then make it the index in the current array
             if dist > self.limit:
                 out_matches[i] = i + length
         return out_matches
@@ -88,11 +90,11 @@ class MegaStopFac:
         :param out_tree: sklearnBallTree for the outbound stops
         :return: list, of all pointers
         """
-        result = out_tree.query(inbound)
-        in_dist, in_matches = self.process_query_results(result)
-        in_matches = self.correct_inbound_matches(in_dist, in_matches)
-        result = in_tree.query(outbound)
-        out_dist, out_matches = self.process_query_results(result)
+        result = out_tree.query(inbound) #returns the indexes of the nearest stop in the outbound array
+        in_dist, in_matches = self.process_query_results(result) #checks to see if they meet our distance parameter
+        in_matches = self.correct_inbound_matches(in_dist, in_matches)  # changes the id to the outbound
+        result = in_tree.query(outbound) # return the indexes
+        out_dist, out_matches = self.process_query_results(result) # checks to see if they meet our distance parameter
         out_matches = self.correct_outboud_matches(out_dist, out_matches, len(inbound))
         return in_matches + out_matches
 
@@ -131,7 +133,7 @@ class MegaStopFac:
         mega_stops= []
         for group in groups.values():
             s = [stops[x] for x in group]
-            mega_stops.append(MegaStop("M"+str(self.count),s))
+            mega_stops.append(MegaStop(self.ch+str(self.count),s))
             self.count += 1
         return mega_stops
 
@@ -165,8 +167,11 @@ class MegaStopFac:
         # build a kd tree out of all of the stops
         inbound_tree, outbound_tree = self.build_ball_tree(inbound_tups, outbound_tups)
         stops = inbound + outbound
+        # has the index of the closest stop in the inbound or outbound list
         unions = self.get_neighbors(inbound_tups, outbound_tups, inbound_tree, outbound_tree)
+        # finds the mutually exclusive sets of stops
         grouped = self.union_find(unions)
+        # creating a dictionary of the
         groups = self.get_groups(grouped)
         return self.build_mega_stops(groups, stops)
 

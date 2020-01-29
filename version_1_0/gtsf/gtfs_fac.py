@@ -1,9 +1,15 @@
-from .gtfs import GTFS
+from .gtfs import GTFS,load_gtfs
+from .schedule import ScheduleMaker
+from .stop import BusStop
+from .mega_stop_fac import MegaStopFac
+from collections import defaultdict
 from os.path import join
 import os
 import datetime as dt
 import bisect
 
+
+MAX_DIST = 700
 
 class GtfsFac:
     """
@@ -42,13 +48,63 @@ class GtfsFac:
         print(self.dates)
         self.gtfs_dict = {}
         self.stops = {}
-        self.megas = {}  # or []??
+        self.mega_stops = {}
+        self.route_stops = None
 
+        # MAKING MEGA STOPS
         for folder, date in zip(self.folders, self.dates):
-            self.gtfs_dict[date] = GTFS(join(folder_path, folder), date)
+            # build a scheduler and get the self.route_stops from each append after dropping duplicates
+            gtfs = load_gtfs(join(folder_path, folder))
+            scheduler = ScheduleMaker(gtfs['trips'], gtfs['stop_times'], gtfs['stops'], gtfs['routes'])
+            route_stops = scheduler.get_stops(split=False)
+            if self.route_stops is None: # first time
+                self.route_stops = route_stops
+            else:
+                self.route_stops.append(route_stops)
+                cols = ['route_short_name', 'direction_id', 'stop_id', 'stop_lat', 'stop_lon']
+                self.route_stops.drop_duplicates(subset=cols)
+
+        self.route_stops.to_csv(join(folder_path, "all_stops.csv"))
+
+        routes_dict = self.build_route_dict(self.route_stops)
+        # build paired stops
+        self.mega_stops = self.build_mega_stop_dict(routes_dict)
+
+        # @ todo : combine mega stops across routes
+        # combine mega stops across routes
+        # self.megas =
+
+        # @ todo : pass in the mega stops to gtfs objects
+        for folder, date in zip(self.folders, self.dates):
+            self.gtfs_dict[date] = GTFS(join(folder_path, folder), date, self.mega_stops)
 
             # self.stops = ??
             # self.megas = append??
+    def build_route_dict(self, route_stops):
+        """
+        :param route_stops: df
+        :return:
+        """
+        route_names = route_stops.route_short_name.drop_duplicates()
+        route_dict = {route: defaultdict(list) for route in route_names}
+        for group_name, stop_df in route_stops.groupby(['route_short_name', 'direction_id']):
+            route_dict[group_name[0]][group_name[1]] = [BusStop(s.stop_id, s.stop_lat, s.stop_lon)  # @todo change name from bus stop
+                                                        for s in stop_df.itertuples()]
+        return route_dict
+
+    def build_mega_stop_dict(self, routes_dict):
+        """
+        @document
+        :param routes_dict: # dict {route_id : {direction : [mega_ids]}}
+        :return: dict {route_id : [MegaStops]}
+        """
+        route_mega_stop_dict = {}
+        MSF = MegaStopFac(MAX_DIST)
+        for route in routes_dict.keys():
+            route_mega_stop_dict[route] = MSF.get_mega_stops(routes_dict[route][0], routes_dict[route][1]) # this makes a route??
+
+        return route_mega_stop_dict  # dict {route_id : [PairedStop]}
+
 
     def get_gtfs_network(self, date):
         ind = bisect.bisect_right(self.dates, date) - 1  # find index of last date that the gtfs data was updated

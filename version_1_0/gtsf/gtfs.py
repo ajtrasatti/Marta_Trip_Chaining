@@ -33,14 +33,14 @@ class GTFS:
         self.gtfs = load_gtfs(gtfs_path)  # loading gtfs
         self.network = {}
         self.route_mega_dict = {}
+        self.scheduler = {}
 
-        # @todo : put network builder into init
-        # @todo? : automatically figure out possible service ids
-        for service_id in [3, 4, 5]:
-            scheduler = ScheduleMaker(self.gtfs['trips'], self.gtfs['stop_times'], self.gtfs['stops'],
-                                      self.gtfs['routes'], service_id)
+        for service_id in [3, 4, 5]:  # automatically figure out possible service ids ?
+            self.scheduler[service_id] = ScheduleMaker(self.gtfs['trips'], self.gtfs['stop_times'], self.gtfs['stops'],
+                                                       self.gtfs['routes'], service_id)
+            routes_dict, train_dict = self.scheduler[service_id].get_routes()
 
-            routes_dict, train_dict = scheduler.get_routes()
+            # @todo - make these not part of init
             self.route_mega_dict[service_id] = self.build_mega_dict(routes_dict, train_dict)
             self.network[service_id] = Network(self.route_mega_dict[service_id], MAX_DIST, service_id)
 
@@ -62,22 +62,22 @@ class GTFS:
             # else
                 return service_id
 
-    def build_mega_dict(self, routes, train_dict):
-        """
-        @document
-        :param routes: # dict {route_id : [mega_ids]}
-        :param train_dict:
-        :return:
-        """
-        route_mega_dict = {}
-        MSF = MegaStopFac(MAX_DIST)
-        for route in routes.keys():
-            route_mega_dict[route] = MSF.get_mega_stops(routes[route][0], routes[route][1]) # this makes a route??
-
-        rsf = RailStopFac(MAX_DIST, MSF.count)  # @ TODO: put this into mega stop factory
-        route_mega_dict["RAIL"] = rsf.get_rail_stops(train_dict)
-
-        return route_mega_dict  # dict {route_id : [mega_ids]}
+    # def build_mega_dict(self, routes_dict, train_dict):
+    #     """
+    #     @document
+    #     :param routes_dict: # dict {route_id : [mega_ids]}
+    #     :param train_dict:
+    #     :return: dict {route_id : [MegaStops]}
+    #     """
+    #     route_mega_dict = {}
+    #     MSF = MegaStopFac(MAX_DIST)
+    #     for route in routes_dict.keys():
+    #         route_mega_dict[route] = MSF.get_mega_stops(routes_dict[route][0], routes_dict[route][1]) # this makes a route??
+    #
+    #     rsf = RailStopFac(MAX_DIST, MSF.count)  # @ TODO: put this into mega stop factory
+    #     route_mega_dict["RAIL"] = rsf.get_rail_stops(train_dict)
+    #
+    #     return route_mega_dict  # dict {route_id : [MegaStops]}
 
     def export_megas(self, path_out, date):
         """

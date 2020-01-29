@@ -29,8 +29,9 @@ class BusSearch:
         """
 
         :param time:
-        :return: tuple of times, stops, routes
+        :return: tuple of time, stop, route
         """
+        # @ todo - QA need to add check that it is within a certain time window
         index = self.find_time_index(time)
         if index == 0:
             # ensures that the first time is used
@@ -43,4 +44,4 @@ class BusSearch:
                 loc = index
             else:
                 loc = index - 1
-        return (self.times[loc], self.stops[self.ids[loc]], self.routes[self.ids[loc]])
+        return self.times[loc], self.stops[self.ids[loc]], self.routes[self.ids[loc]]

@@ -27,8 +27,7 @@ class Network:
         :param trans_limit: max distance allowed for transition
         :param dates: tup, (dt.datetime, dt.datetime, weekend) used to determine which days are valid
 
-        create routes_dict : containing route_name to route object
-        build transitions so you can use get transition function
+        create routes_dict : dictionary {route_id : Route([stops])
         """
 
         self.trans_limit = trans_limit
@@ -36,6 +35,15 @@ class Network:
         # self.build_transitions()
         # self.service_id = service_id
         # self.dates = dates
+
+    # def find_stop(self, route_id, stop_id):
+    #     """
+    #     This function finds a given stop given its identifiers
+    #     :param route_id:
+    #     :param stop_id:
+    #     :return: MegaStop
+    #     """
+    #     return self.routes_dict[route_id].stops[stop_id]
 
     # def build_transitions(self, route_mega_dict):
     #     """
@@ -55,16 +63,6 @@ class Network:
     #     #     routes_dict[route2].trans[route1] = stop_ball_tree.query_radius(l2, self.trans_limit, True)
     #
     #     return routes_dict
-
-    def find_stop(self, route_id, stop_id):
-        """
-        This function finds a given stop given its identifiers
-        :param route_id:
-        :param stop_id:
-        :return: MegaStop
-        """
-        return self.routes_dict[route_id].stops[stop_id]
-
 
     # def get_transition(self, route_id1, route_id2, stop_id):
     #     """
@@ -98,13 +96,13 @@ class Network:
     #             for s, o in r.trans.items():
     #                 writer.writerow([ind, str(s), [str(x) for x in o]])
 
-    def to_json(self,path_out):
-        """
-        be easily stored in a json format
-        :param path_out:
-        :return:
-        """
-        pass
-
-    def to_pickle(self,path_out):
-        pass
+    # def to_json(self,path_out):
+    #     """
+    #     be easily stored in a json format
+    #     :param path_out:
+    #     :return:
+    #     """
+    #     pass
+    #
+    # def to_pickle(self,path_out):
+    #     pass

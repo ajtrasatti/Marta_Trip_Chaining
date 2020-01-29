@@ -3,12 +3,12 @@ from .mega_stop_fac import MegaStopFac
 
 class RailStopFac:
 
-    def __init__(self, limit,count =0):
+    def __init__(self, limit, count=0):
         self.R = 3959.87433 * 5280  # radius of the earth in feet
         self.limit = limit
         self.count = count
 
-    def duplicate(self,curr):
+    def duplicate(self, curr):
         inbound = []
         outbound = []
         for i in range(len(curr)):
@@ -23,11 +23,11 @@ class RailStopFac:
 
         :return:
         """
-        train_routes = list(train_dict.keys())
-        mega_fac = MegaStopFac(700)
-        curr = train_dict[train_routes[0]]
-        for r in train_routes[1:]:
-            curr = mega_fac.get_train_mega_stops(curr, train_dict[r])
+        train_routes = list(train_dict.keys()) #the route names
+        mega_fac = MegaStopFac(700, ch='R') # Initiating rail factory
+        curr = train_dict[train_routes[0]] #looking up all the blue stops
+        for r in train_routes[1:]: # looping through the remaining train routs
+            curr = mega_fac.get_train_mega_stops(curr, train_dict[r]) #
         else:
             for i in range(4):
                 inbound, outbound = self.duplicate(curr)
