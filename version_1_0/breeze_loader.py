@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 import csv
 
-from .parameters import BREEZE_TAP_TIME_WINDOW
+from parameters import BREEZE_TAP_TIME_WINDOW
 
 class BreezeLoader:
     def load_breeze(self, path):
@@ -100,20 +100,18 @@ class BreezeLoader:
         # breeze_df.insert(len(breeze_df.columns),"APC_ROUTES",routes)
 
         if verbose:
-            def error_stats(df, x):
-                if len(df) != 0:
-                    l1 = len(df[df.stop_id == x])
-                    l2 = len(df)
+            def error_stats(df_col, e):
+                if len(df_col) != 0:
+                    l1 = sum(df_col == e)
+                    l2 = len(df_col)
                     error_per = l1 / l2 * 100
-                    print(x, l1, l2, error_per, "%")
+                    print(e, l1, l2, error_per, "%")
             for x in ["time difference too large", "bus id not found",
                       "No nearby stop on route", "route id not found for vehicle",
                       "route id different"]:
-                error_stats(bus_df,x)
+                error_stats(bus_df.stop_id, x)
             # print("bad_time ", f"{bad_time}, {len(bus_df)}, {bad_time/len(bus_df) * 100:.3f}%")
             # print("bad_bus_id ", f"{bad_bus_id}, {len(bus_df)}, {bad_bus_id / len(bus_df) * 100:.3f}%")
-
-
 
         return bus_df
 

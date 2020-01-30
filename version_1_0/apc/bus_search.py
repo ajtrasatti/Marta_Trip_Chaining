@@ -63,4 +63,4 @@ class BusSearch:
             # @todo - should probably go from departure time -- need to make that a DTM
             if ret.ARRIVAL_DTM != self.times[loc]:
                 print(ret.ARRIVAL_DTM, self.times[loc])
-            return ret.ARRIVAL_DTM, ret.stop_id , ret.ROUTE_ABBR
+            return ret.ARRIVAL_DTM, ret.stop_id, ret.ROUTE_ABBR

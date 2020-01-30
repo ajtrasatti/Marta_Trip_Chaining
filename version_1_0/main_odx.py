@@ -3,7 +3,6 @@
 @author Joshua E. Morgan , jmorgan63@gatech.edu
 Socially Aware Mobility (SAM) Lab, Georgia Tech
 v_1.0
-@todo Use global parameters file
 @todo Output error stats to a file using an error class
 """
 
@@ -80,7 +79,6 @@ def main():
     dates = sorted([to_dt(folder) for folder in folders])
     # print(dates[90])
 
-
     rail_path = join(my_path, 'RailStopsMap.csv')
     gtfs = GtfsFac(join(my_path, 'MARTA_gtfs'))
     # print("made_gtsf", time.time() - t0) # about 30 secs
@@ -92,7 +90,8 @@ def main():
         print("Processing ", date)
         data_path = join(my_path, "partitioned", str(date.year) + "_" + str(date.month) + "_" + str(date.day))
         trip_chaining(gtfs, date, data_path, rail_path)
-        print("Processed",date , time.time() - t0)
+        print("Processed", date, time.time() - t0)
+
 
 if __name__ == '__main__':
     main()

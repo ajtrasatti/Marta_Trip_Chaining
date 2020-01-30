@@ -4,13 +4,14 @@
 Socially Aware Mobility (SAM) Lab, Georgia Tech
 v_1.0
 """
-
-from .bus_search import BusSearch
 import pandas as pd
-# import haversine
 from geo import haversine_feet
-
-BUS_TO_STOP_DIST = 1000  # global param to add to file
+from .bus_search import BusSearch
+from version_1_0.parameters import BUS_TO_STOP_DIST
+"""
+PARAMETERS
+    - BUS_TO_STOP_DIST (feet) :  how close bus has to be to stop to not produce error
+"""
 
 
 class APC:
