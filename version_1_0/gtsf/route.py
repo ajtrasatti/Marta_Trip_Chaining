@@ -21,22 +21,28 @@ class Route:
 
     def __init__(self, route_id, stops):
         """
-        Question- double linked list, with direction
+        :param route_id:
         :param stops:
         """
         # we can use a list here that is in a specific direction such as
         # inbound or outbound to insure we maintain directional selection
-        self.id = route_id
-        self.stops = {stop.id: stop for stop in stops}  # build dict
+        self.route_id = route_id
+        self.stops = {stop.stop_id: stop for stop in stops}  # build dict
         self.tree = StopBallTree(stops)
         self.order = []  # build list
         # self.trans = {}
 
     def __str__(self):
         return (
-            f"id = {self.id}"
+            f"Route(route_id={self.route_id},"
             f"stops = {','.join(self.stops.keys())}"
         )
+
+    def get_stop_ball_tree(self):
+        """
+        :return: StopBallTree that can find closest stops to those on this route
+        """
+        return self.tree
 
     # def get_trans(self, other_id, stop_id):
     #     """

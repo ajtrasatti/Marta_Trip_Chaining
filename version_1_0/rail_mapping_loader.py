@@ -20,9 +20,8 @@ class RailMappingLoader:
         :param rail_mappings:
         :return:
         """
-        rail_mappings.update(rail_mappings.stop_name.apply(lambda x: x[:len(x) - 7].strip()))
-        rail_mappings.drop_duplicates(subset=[
-                                              'stop_name'],inplace=True)
+        rail_mappings.update(rail_mappings.stop_name.apply(lambda x: x[:len(x) - 7].strip()))  # remove STATION
+        rail_mappings.drop_duplicates(subset=['stop_name'], inplace=True)
         return rail_mappings
 
     def fit_2_network(self, rail_mappings, routes_dict):
@@ -35,10 +34,10 @@ class RailMappingLoader:
         """
         x = []
         for row in rail_mappings.itertuples():
-            route = routes_dict["RAIL"]
+            route = routes_dict[row.route]
             stop = route.tree.query_point(row.stop_lat, row.stop_lon)
-            x.append(stop.id)
-        rail_mappings["MEGA_STOP"] = x
+            x.append(stop.stop_id)
+        rail_mappings["stop_id"] = x
 
         # print(rail_mappings.head())
         return rail_mappings

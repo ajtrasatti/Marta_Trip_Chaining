@@ -96,6 +96,7 @@ class MegaStopFac:
         result = in_tree.query(outbound) # return the indexes
         out_dist, out_matches = self.process_query_results(result) # checks to see if they meet our distance parameter
         out_matches = self.correct_outboud_matches(out_dist, out_matches, len(inbound))
+
         return in_matches + out_matches
 
     def union_find(self, partners):

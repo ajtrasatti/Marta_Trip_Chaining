@@ -5,10 +5,10 @@ v_0.0
 """
 
 import numpy as np
-from numba import njit
+# from numba import njit
 
-@njit
-def haversine(lon1, lat1, lon2, lat2):
+# @njit
+def haversine_feet(lon1, lat1, lon2, lat2):
     """
     Haversine funciton gets distance between two points on a globe
     :param lon1: float, longitude of the first stop

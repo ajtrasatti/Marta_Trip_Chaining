@@ -1,5 +1,10 @@
-import pandas as pd
+
 from .bus_search import BusSearch
+import pandas as pd
+# import haversine
+from geo import haversine_feet
+
+BUS_TO_STOP_DIST = 1000  # global param to add to file
 
 
 class APC:
@@ -39,17 +44,20 @@ class APC:
         for tup in self.df.itertuples():
             tree = self.get_route_tree(routes_dict, str(tup.ROUTE_ABBR))
             if type(tree) != int:
-                # tree_query - returns the mega stop, .id access the id of the megastop
+                # tree_query - returns the mega stop, .id access the id of the mega stop
                 ms = tree.query_point(tup.LATITUDE, tup.LONGITUDE)
-                x.append(ms.id)
+                if haversine_feet(ms.lat, ms.lon, tup.LATITUDE, tup.LONGITUDE) < BUS_TO_STOP_DIST:
+                    x.append(ms.stop_id)
+                else:
+                    x.append("No nearby stop on route")
             else:
                 bad += 1
                 x.append("NO_ROUTE_INFO")  # IF ROUTE NOT FOUND IN GTSF
 
         # if test:
         #     return bad
-        print("NOT FOUND PERCENT IN APC LOADER", bad / len(self.df))  # to be outputed into a stats csv/excel
-        self.df.insert(len(self.df.columns), "MEGA_STOP", x)
+        print("NOT FOUND PERCENT IN APC LOADER", bad / len(self.df))  # to be out puted into a stats csv/excel
+        self.df["stop_id"] = x
         # return self.df
 
     def get_apc_df(self):

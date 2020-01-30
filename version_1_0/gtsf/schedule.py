@@ -5,7 +5,7 @@ v_0.0
 """
 
 from collections import defaultdict
-from .stop import BusStop, TrainStop
+# from .stop import BusStop, TrainStop
 
 
 class ScheduleMaker:
@@ -44,12 +44,15 @@ class ScheduleMaker:
         # self.bus_table = self.route_stops[
         #     ~(self.route_stops.route_short_name.isin(['RED', 'BLUE', 'GREEN', 'GOLD']))]
 
-    def get_stops(self, split=False):
+    def get_route_stops(self, direction = True, split=False):
         """
         :param split: if you want to split bus and train table
         :return: stops with
         """
-        cols = ['route_short_name', 'direction_id', 'stop_id', 'stop_lat', 'stop_lon']
+        if direction:
+            cols = ['route_short_name', 'direction_id', 'stop_id', 'stop_lat', 'stop_lon']
+        else:
+            cols = ['route_short_name', 'stop_id', 'stop_lat', 'stop_lon']
         if split:
             bus = self.bus_table.drop_duplicates(subset=cols)
             bus = bus[cols]
@@ -57,7 +60,9 @@ class ScheduleMaker:
             train = train[cols]
             return bus, train
         else:
-            return self.route_stops.drop_duplicates(subset=cols)
+            route_stops = self.route_stops.drop_duplicates(subset=cols)
+            route_stops = route_stops[cols]
+            return route_stops
 
     # def get_stops_multiple(self, split=False):
     #     """

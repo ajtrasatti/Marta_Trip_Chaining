@@ -8,7 +8,7 @@ class BusSearch:
 
     def __init__(self, bus_df):  # , id=None):
         times = list(bus_df.ARRIVAL_DTM)
-        stops = list(bus_df.MEGA_STOP)
+        stops = list(bus_df.stop_id)
         routes = list(bus_df.ROUTE_ABBR)
         time_tups = sorted([(i, t) for i, t in enumerate(times)], key=lambda x: x[1])
         self.times = [t for ind, t in time_tups]
@@ -31,7 +31,6 @@ class BusSearch:
         :param time:
         :return: tuple of time, stop, route
         """
-        # @ todo - QA need to add check that it is within a certain time window
         index = self.find_time_index(time)
         if index == 0:
             # ensures that the first time is used
@@ -44,4 +43,5 @@ class BusSearch:
                 loc = index
             else:
                 loc = index - 1
+        # @todo - is times checking right? also probably want to do closer to right, self.times is sorted??
         return self.times[loc], self.stops[self.ids[loc]], self.routes[self.ids[loc]]
