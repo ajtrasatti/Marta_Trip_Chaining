@@ -1,12 +1,13 @@
 """
+@author Anthony J. Trasatti , atrasatti3@gatech.edu
 @author Joshua E. Morgan , jmorgan63@gatech.edu
-Pascal Van Henteryck Lab
-v_0.0
+Socially Aware Mobility (SAM) Lab, Georgia Tech
+v_1.0
 """
 
 from sklearn.neighbors import BallTree
 from collections import defaultdict
-from .stop import MegaStop
+from version_1_0.gtsf.stop import MegaStop
 from .union_find import UnionFind
 import numpy as np
 

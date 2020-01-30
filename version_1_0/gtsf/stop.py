@@ -1,7 +1,8 @@
 """
+@author Anthony J. Trasatti , atrasatti3@gatech.edu
 @author Joshua E. Morgan , jmorgan63@gatech.edu
-Pascal Van Henteryck Lab
-v_0.0
+Socially Aware Mobility (SAM) Lab, Georgia Tech
+v_1.0
 """
 
 

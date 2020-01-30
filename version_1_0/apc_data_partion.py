@@ -1,3 +1,12 @@
+"""
+@author Anthony J. Trasatti , atrasatti3@gatech.edu
+Socially Aware Mobility (SAM) Lab, Georgia Tech
+v_1.0
+
+# This file partitions the APC.csv into daily files
+# Each one goes from 3am to 3am the next day
+"""
+
 import datetime as dt
 import pandas as pd
 from os import mkdir

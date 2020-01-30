@@ -1,7 +1,7 @@
 import pandas as pd
 from os.path import join
 from .schedule import ScheduleMaker
-from .network import Network
+# from .network import Network
 # from .mega_stop_fac import MegaStopFac
 # from .RailStopFac import RailStopFac
 

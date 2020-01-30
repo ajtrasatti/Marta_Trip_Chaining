@@ -1,8 +1,12 @@
-import odx
-'''
-Right now this file is just used to point out that 
+"""
+@author Anthony J. Trasatti , atrasatti3@gatech.edu
+Socially Aware Mobility (SAM) Lab, Georgia Tech
+v_1.0
+
+Right now this file is just used to point out that
 you want to look at the odx class for the main method
-'''
+"""
+import odx
 
 
 def main():

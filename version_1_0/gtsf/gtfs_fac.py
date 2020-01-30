@@ -1,17 +1,20 @@
+"""
+@author Anthony J. Trasatti , atrasatti3@gatech.edu
+@author Joshua E. Morgan , jmorgan63@gatech.edu
+Socially Aware Mobility (SAM) Lab, Georgia Tech
+v_1.0
+"""
+
 from .gtfs import GTFS, load_gtfs
 from .schedule import ScheduleMaker
 from .stop import Stop  # , BusStop
 from .route import Route
-# from .mega_stop_fac import MegaStopFac
+
 
 from collections import defaultdict
 from os.path import join
 import os
 import datetime as dt
-import bisect
-
-MAX_DIST = 700
-# COMBINE = {"RAIL": ['RED', 'BLUE', 'GREEN', 'GOLD']}
 
 
 class GtfsFac:
@@ -73,11 +76,8 @@ class GtfsFac:
         # build paired stops
         # self.mega_stops = self.build_mega_stop_dict(routes_dict)
 
-        # @ todo : use mega stops?
-        # combine mega stops across routes
 
         # self.stops = {}
-        # self.mega_stops = {}
 
         # self.megas =
 
@@ -106,6 +106,7 @@ class GtfsFac:
         route_dict = {route: defaultdict(list) for route in route_names}
 
         for route_id, stop_df in route_stops.groupby(['route_short_name']):
+            # @todo - use a Stop_fac that keeps track of all the stops
             stop_set = {Stop(s.stop_id, s.stop_lat, s.stop_lon) for s in stop_df.itertuples()}
             route_dict[route_id] = Route(route_id, stop_set)
 

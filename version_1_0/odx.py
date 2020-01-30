@@ -1,8 +1,9 @@
 """
+@author Anthony J. Trasatti , atrasatti3@gatech.edu
 @author Joshua E. Morgan , jmorgan63@gatech.edu
-Pascal Van Henteryck Lab
-v_0.0
-@todo Make global parameters file
+Socially Aware Mobility (SAM) Lab, Georgia Tech
+v_1.0
+@todo Use global parameters file
 @todo Output error stats to a file using an error class
 """
 
@@ -10,32 +11,11 @@ import os
 from os.path import join, realpath
 import datetime as dt
 import pandas as pd
+
 from gtsf import GtfsFac
 from apc import APC
 from breeze_loader import BreezeLoader
 from rail_mapping_loader import RailMappingLoader
-
-
-# class ODX:
-#     """
-#     This is the odx class which has the main
-#     Attributes
-#         - start -
-#         - end -
-#         - test
-#         -
-#     """
-#     def __init__(self, start, end, test=True, **kwargs):
-#         """
-#
-#         :param start: string, with time of the period that starts
-#         :param end: string, with time of the period that starts
-#         :param test: bool, determine wether to run the function in test mode with preset parameters
-#         :param kwargs:
-#         """
-#         # fileDir = realpath(__file__).split('/version')[0]
-#         # self.data_path = join(fileDir, 'Data')
-#         # self.megas = None
 
 
 def trip_chaining(gtfs, day, data_path, rail_path):  # data, gtsf_path, ):  # day and files

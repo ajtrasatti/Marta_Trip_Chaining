@@ -1,3 +1,9 @@
+"""
+@author Anthony J. Trasatti , atrasatti3@gatech.edu
+@author Joshua E. Morgan , jmorgan63@gatech.edu
+Socially Aware Mobility (SAM) Lab, Georgia Tech
+v_1.0
+"""
 
 from .bus_search import BusSearch
 import pandas as pd

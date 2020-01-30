@@ -1,8 +1,15 @@
+"""
+@author Anthony J. Trasatti , atrasatti3@gatech.edu
+@author Joshua E. Morgan , jmorgan63@gatech.edu
+Socially Aware Mobility (SAM) Lab, Georgia Tech
+v_1.0
+"""
+
 import pandas as pd
 import numpy as np
 import csv
 
-BREEZE_TAP_TIME_WINDOW = 600
+from .parameters import BREEZE_TAP_TIME_WINDOW
 
 class BreezeLoader:
     def load_breeze(self, path):
