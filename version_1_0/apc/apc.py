@@ -19,6 +19,7 @@ class APC:
         """
         self.df = pd.read_csv(filename)
         self.df.ARRIVAL_DTM = pd.to_datetime(self.df.ARRIVAL_DTM, format="%Y-%m-%d %H:%M:%S")
+        self.df.DEPARTURE_DTM = pd.to_datetime(self.df.DEPARTURE_DTM, format="%Y-%m-%d %H:%M:%S")
         # self.join_megas()  # add megas to self.df
 
     def get_route_tree(self, routes_dict, route_id):

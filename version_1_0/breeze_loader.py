@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import csv
 
 BREEZE_TAP_TIME_WINDOW = 600
 
@@ -64,18 +65,22 @@ class BreezeLoader:
         for tup in bus_df.itertuples():
             if tup.bus_id in bus_searches.keys():
                 bus_search = bus_searches[tup.bus_id]
-                time, stop, route = bus_search.find_stop_route(tup.Transaction_dtm)
-                if abs(tup.Transaction_dtm - time).seconds <= BREEZE_TAP_TIME_WINDOW:
-                    stops.append(stop)
-                    # times.append(time)
-                    # routes.append(route)
+                time, stop, route_id = bus_search.find_stop_route(tup.Transaction_dtm, tup.route_no)
+                if tup.route_no != route_id:
+                    stops.append("route id different")
                 else:
-                    removed.append(tup.bus_id)
-                    stops.append("time difference too large")
-                    bad_time += 1
+                    if abs(tup.Transaction_dtm - time).seconds <= BREEZE_TAP_TIME_WINDOW:
+                        stops.append(stop)
+                        # times.append(time)
+                        # routes.append(route)
+                    else:
+                        removed.append(tup.bus_id)
+                        # print(tup)
+                        stops.append("time difference too large")
+                        bad_time += 1
 
-                    # times.append(np.nan)
-                    # routes.append(np.nan)
+                        # times.append(np.nan)
+                        # routes.append(np.nan)
             else:
                 removed.append(tup.bus_id)
                 stops.append("bus id not found")
@@ -90,12 +95,18 @@ class BreezeLoader:
         if verbose:
             def error_stats(df, x):
                 if len(df) != 0:
-                    error_per = len(df[df.stop_id == x]) / len(df) * 100
-                    print(x, error_per, "%")
-            for x in ["time difference too large", "bus id not found", "No nearby stop on route"]:
+                    l1 = len(df[df.stop_id == x])
+                    l2 = len(df)
+                    error_per = l1 / l2 * 100
+                    print(x, l1, l2, error_per, "%")
+            for x in ["time difference too large", "bus id not found",
+                      "No nearby stop on route", "route id not found for vehicle",
+                      "route id different"]:
                 error_stats(bus_df,x)
             # print("bad_time ", f"{bad_time}, {len(bus_df)}, {bad_time/len(bus_df) * 100:.3f}%")
             # print("bad_bus_id ", f"{bad_bus_id}, {len(bus_df)}, {bad_bus_id / len(bus_df) * 100:.3f}%")
+
+
 
         return bus_df
 

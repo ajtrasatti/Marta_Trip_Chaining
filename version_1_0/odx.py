@@ -98,7 +98,7 @@ def main():
         return dt.datetime(int(x[0]), int(x[1]), int(x[2]))
     folders = [name for name in os.listdir(folder_path) if os.path.isdir(join(folder_path, name))]
     dates = sorted([to_dt(folder) for folder in folders])
-    print(dates[90])
+    # print(dates[90])
 
 
     rail_path = join(my_path, 'RailStopsMap.csv')
@@ -106,8 +106,8 @@ def main():
     # print("made_gtsf", time.time() - t0) # about 30 secs
     print("GTFS made", time.time()-t0)
 
-    for date in dates[0:90]:  # @todo : remove this to run all
-    # for date in dates:
+    # for date in dates[0:90]:  # @todo : remove this to run all
+    for date in dates:
         t0 = time.time()
         print("Processing ", date)
         data_path = join(my_path, "partitioned", str(date.year) + "_" + str(date.month) + "_" + str(date.day))
