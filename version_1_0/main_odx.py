@@ -58,7 +58,7 @@ def trip_chaining(gtfs, day, data_path, rail_path):  # data, gtsf_path, ):  # da
 
     rail_df = breeze_load.match_rail_stops(rail_df, rail_mapping)
 
-    df = pd.concat([bus_df, rail_df], sort=False)
+    df = pd.concat([bus_df, rail_df], sort=False).sort_values("Transaction_dtm")
 
     df.to_csv(join(data_path, 'breeze_output.csv'), index=False)
     print(df.head())
@@ -84,7 +84,7 @@ def main():
     # print("made_gtsf", time.time() - t0) # about 30 secs
     print("GTFS made", time.time()-t0)
 
-    # for date in dates[0:90]:  # @todo : remove this to run all
+    # for date in dates[0:10]:  # @todo : remove this to run all
     for date in dates:
         t0 = time.time()
         print("Processing ", date)
