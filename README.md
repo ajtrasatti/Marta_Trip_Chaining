@@ -16,6 +16,8 @@ To build a software to build from transaction data and automated personel counte
 - **breeze_loader.py** - main file that calls each of the modules and puts all components together to create a cohesive data set to build from
 - **rail_mapping_loader.py** - loads data from the rail map from station names to latitudes to the megastops
 
+To be added:
+- **trip_chaining.py** - used to trip chain for each breeze id over all the data
   - **network.py** - object that provides a central storage location for all of the routes and a easy interface to get information from  each of the routes
 
 
