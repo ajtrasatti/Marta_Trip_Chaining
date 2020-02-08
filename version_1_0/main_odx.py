@@ -17,7 +17,7 @@ from breeze_loader import BreezeLoader
 from rail_mapping_loader import RailMappingLoader
 
 
-def trip_chaining(gtfs, day, data_path, rail_path):  # data, gtsf_path, ):  # day and files
+def preprocessing(gtfs, day, data_path, rail_path):  # data, gtsf_path, ):  # day and files
     """
     :param gtfs: GTFS Factory object
     :param day: date_time object
@@ -84,12 +84,11 @@ def main():
     # print("made_gtsf", time.time() - t0) # about 30 secs
     print("GTFS made", time.time()-t0)
 
-    # for date in dates[0:10]:  # @todo : remove this to run all
     for date in dates:
         t0 = time.time()
         print("Processing ", date)
         data_path = join(my_path, "partitioned", str(date.year) + "_" + str(date.month) + "_" + str(date.day))
-        trip_chaining(gtfs, date, data_path, rail_path)
+        preprocessing(gtfs, date, data_path, rail_path)
         print("Processed", date, time.time() - t0)
 
 
