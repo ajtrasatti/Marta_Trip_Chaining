@@ -1,8 +1,5 @@
 """
-@author Anthony J. Trasatti , atrasatti3@gatech.edu
-@author Joshua E. Morgan , jmorgan63@gatech.edu
-Socially Aware Mobility (SAM) Lab, Georgia Tech
-v_1.0
+@todo build new interface for ball tree with megastops
 """
 from sklearn.neighbors import BallTree
 import numpy as np
@@ -55,7 +52,8 @@ class StopBallTree:
 
         r = radius/self.R  # need to convert radius into radians distance
         ind = self.tree.query_radius(stop_2_rads_tup(stops), r=r)
-        return {stops[i]: [self.tree_stops[j] for j in ind[i]] for i in range(len(stops))}
+        return ind
+        # return {stops[i]: [self.tree_stops[j] for j in ind[i]] for i in range(len(stops))}
 
     def query_point(self, lat, lon):
         """

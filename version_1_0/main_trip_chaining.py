@@ -9,6 +9,7 @@ from os.path import join, realpath
 import datetime as dt
 import numpy as np
 import pandas as pd
+from trip_chaining import TripChain
 
 def main():
     import time
@@ -27,7 +28,7 @@ def main():
 
     breeze_df = None
 
-    max_ind = 20
+    max_ind = 3
     for folder, date in zip(folders[1:max_ind], dates[1:max_ind]):
         print(date)
         temp = pd.read_csv(join(folder_path, folder, "breeze_output.csv")).drop('Unnamed: 0', axis=1)
@@ -39,17 +40,25 @@ def main():
     t0 = time.time()
     print("starting group"); t0 = time.time()
     groups = breeze_df.groupby("Serial_Nbr")
-    print("time", time.time() - t0); t0 = time.time()
-    # breeze_df.MATCH_ERROR.fillna(-999)
-    print("time for filling errors", time.time() - t0); t0 = time.time()
+    print("time for grouping", time.time() - t0); t0 = time.time()
+
+    total = len(groups)
+    print(total)
+    count = 0
+    actual = 0
     for Serial_Nbr, df in groups:
-        ######################
-        # TODO : Add trip chaining code here
-        # trip_chain(person's df)
+        count += 1
+        if len(df) > max_ind*5 and not np.any(df.MATCH_ERROR):
+            t0 = time.time()
+            actual += 1
 
-        if len(df) > 100 and not np.any(df.MATCH_ERROR):
             df.to_csv(join("../Data/People", str(Serial_Nbr) + ".csv"))
+            # trip chain
+            trip_chain = TripChain()
+            trip_df = trip_chain.trip_chain_df(breeze_df=df, breeze_number=Serial_Nbr)
+            trip_df.to_csv(join("../Data/PeopleTrips", str(Serial_Nbr) + ".csv"))
 
+            print("COUNT IS", count, "out of", total, "actuals", actual, "time", time.time()-t0)
 
 
 if __name__ == '__main__':

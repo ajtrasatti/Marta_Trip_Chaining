@@ -85,13 +85,19 @@ class BreezeLoader:
                 error = np.nan
                 arr_time = apc_row.ARRIVAL_DTM
                 dep_time = apc_row.DEPARTURE_DTM
+                stop_id = apc_row.stop_id
                 if trans_time < dep_time or abs(trans_time - dep_time).seconds <= BREEZE_TAP_TIME_WINDOW:
                     if tup.route_no != apc_row.ROUTE_ABBR:
                         error = "route id different"
                 else:
                     error = "time difference too large"
 
-                stops.append(apc_row.stop_id)
+                # @ TODO -- Rerun this so you get route errors
+                if apc_row.stop_id == "NO_ROUTE_INFO":
+                    error = "NO_ROUTE_INFO"
+                    stop_id = -1
+
+                stops.append(stop_id)
                 arr_times.append(arr_time)
                 dep_times.append(dep_time)
                 routes.append(apc_row.ROUTE_ABBR)

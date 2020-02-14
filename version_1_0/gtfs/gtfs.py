@@ -13,7 +13,7 @@ MAX_DIST = 700  # max distance between stops
 
 def load_gtfs(gtfs_path):
     """
-    build the gtsf dict of pandas dfs
+    build the gtfs dict of pandas dfs
 
     :param gtfs_path: path to the gtfs
     :return: gtfs: a dictionary of keys (strings) with values (Pandas DataFrames)
