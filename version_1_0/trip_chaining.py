@@ -5,9 +5,18 @@ import folium
 from collections import defaultdict
 from gtfs import Network
 
+
 #######################
 global trip_id
 trip_id = 1000000
+network = Network()
+global leg_count
+leg_count = defaultdict(lambda : 0)
+
+global valid
+global not_valid
+valid = 0
+not_valid = 1
 ########################
 
 
@@ -35,9 +44,9 @@ class TripChain:
         # for k in self.tracking:
         #     self.trips[k].append(self.trip[k])
     """
-    def __init__(self):
+    def __init__(self, network=network):
         self.state = None
-        self.network = Network()
+        self.network = network
 
         self.tracking = ["trip_id", "breeze_id", "start_stop", "start_time", "end_stop", "end_time",
                          "stops", "routes", "num_legs", "used_bus", "used_train"]
@@ -53,7 +62,7 @@ class TripChain:
         :return: 1 if rail, 0 if bus
         """
         # print(dev_op, "RAIL" in dev_op.upper())
-        if "RAIL" in dev_op:
+        if "RAIL" in dev_op.upper():
             return 1
         else:
             return 0
@@ -63,6 +72,7 @@ class TripChain:
         :param dev_op: ex. "MARTA Bus" or "MARTA Rail"
         :return: 0 if rail, 1 if bus
         """
+        # print(dev_op, 1 - self.is_rail(dev_op))
         return 1 - self.is_rail(dev_op)
 
     def valid_transfer(self, stop_id, route_id):
@@ -90,8 +100,8 @@ class TripChain:
         self.trip["start_stop"] = stop_id
         self.trip["routes"] = [route_id]
         self.trip["stops"] = [stop_id]
-        self.trip["used_bus"] = self.is_rail(first_leg.Dev_Operator)
-        self.trip["used_train"] = self.is_bus(first_leg.Dev_Operator)
+        self.trip["used_bus"] = self.is_bus(first_leg.Dev_Operator)
+        self.trip["used_train"] = self.is_rail(first_leg.Dev_Operator)
         self.trip["directions"] = [first_leg.MATCH_DIRECTION]
         self.trip["num_legs"] = 1
         global trip_id
@@ -116,14 +126,13 @@ class TripChain:
         # rail = next_leg.MATCH_ROUTE == 0
         not_return_trip = next_leg.MATCH_ROUTE not in self.trip["routes"]  # make sure it is not the return trip
 
-        cur_route = self.trip["routes"][-1]
-
-        valid_transition = self.network.get_transition(next_leg.stop_id, cur_route, ret_bool=True)
+        # cur_route = self.trip["routes"][-1]
+        # valid_transition = self.network.get_transition(next_leg.stop_id, cur_route, ret_bool=True)
         # print(valid_transition)
 
         end_of_last_trip = next_leg.use_type_desc == "Exit (Tag Off)"
 
-        return (within_time_limit and not_return_trip and valid_transition) or end_of_last_trip
+        return (within_time_limit and not_return_trip) or end_of_last_trip
 
     def trip_chain(self, next_leg):
         """
@@ -163,13 +172,19 @@ class TripChain:
         if not self.valid_transfer(next_stop_id, route_id):
             return False
 
+        global valid
+        global not_valid
         # check that stop isn't too close to any previous stops on trips
         for prev_stop in self.trip["stops"]:
             # check to see next_stop is walking distance from any previous stop
             if next_stop_id in self.network.get_transition(prev_stop, next_route_id):
-                print("NOT VALID")
+                # print("NOT VALID")
+                not_valid += 1
                 return False
         # else
+        if route_id != 0:
+            print("CHECK CHECK ", next_stop_id, route_id, next_route_id)
+            valid += 1
         return True
 
     def finish_trip(self, next_leg=None):
@@ -187,13 +202,15 @@ class TripChain:
             next_route_id = int(next_leg.MATCH_ROUTE)
             # print(self.trip["end_stop"], np.isnan(self.trip["end_stop"]))
             if np.isnan(self.trip["end_stop"]):
-                print("looking at next leg")
+                # print("looking at next leg")
                 route_id = self.trip["routes"][-1]
                 if self.valid_destination(next_stop_id, route_id, next_route_id):
                     self.trip["end_stop"] = next_stop_id
                     self.trip["stops"].append(next_stop_id)
                     # self.trip["end_time"] =  # @todo: need to look at apc data to find end time for buses
 
+        global leg_count
+        leg_count[(self.trip["used_bus"],self.trip["used_train"])] += 1
         for k in self.tracking:
             self.trips[k].append(self.trip[k])
         # return self.trips
@@ -202,7 +219,6 @@ class TripChain:
         print("Starting for person ", breeze_number, len(breeze_df))
         if breeze_df is None:
             breeze_df = self.df
-        breeze_df.Transaction_dtm = pd.to_datetime(breeze_df.Transaction_dtm)
 
         iter_df = breeze_df.iloc[1:].iterrows()  # df iterator
 
@@ -217,9 +233,13 @@ class TripChain:
         self.finish_trip()  # add unfinished trip to trip df
 
         trip_df = pd.DataFrame(self.trips)
-        print(trip_df.head())
+        # print(trip_df.head())
         # trip_df.to_csv("trips.csv")
-        print("TEST TEST", len(trip_df), len(breeze_df), breeze_number)
+        # print("TEST TEST", len(trip_df), len(breeze_df), breeze_number)
+        global valid
+        global not_valid
+        print("chained percent", valid/(valid+not_valid), valid, not_valid)
+        print("leg count (bus,train)", leg_count)
         return trip_df
 
 
@@ -228,7 +248,7 @@ def test():
     filename = "/Users/anthonytrasatti/Desktop/Research/Marta/Trip-Chaining-master/Data/People/4089507211.csv"
 
     df = pd.read_csv(filename, index_col=0)
-
+    df.Transaction_dtm = pd.to_datetime(df.Transaction_dtm)
     x = df.head()
     print(df.columns)
     print(x)

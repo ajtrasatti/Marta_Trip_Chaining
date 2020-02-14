@@ -106,7 +106,7 @@ class BreezeLoader:
             else:
                 errors.append("bus id not found")
                 for arr in lists:
-                    arr.append(np.nan)
+                    arr.append(-1)
 
         bus_df["stop_id"] = stops
         bus_df["MATCH_ARRIVAL_TIME"] = arr_times

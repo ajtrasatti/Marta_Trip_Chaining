@@ -72,7 +72,7 @@ class Network:
         ind_stops = {ind: s.stop_id for ind, s in enumerate(stops)}
         ball_tree = StopBallTree(stops)
         neighbors_arr = ball_tree.query_radius(stops, MAX_DISTANCE)
-        stops_routes_neighbors = {}
+        stops_routes_neighbors = defaultdict(lambda: defaultdict(lambda: set()))
 
         # print(neighbors_arr)
         for stop_ind, neighbors in enumerate(neighbors_arr):

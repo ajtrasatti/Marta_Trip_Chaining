@@ -39,6 +39,7 @@ def main():
         # print(breeze_df.tail())
     t0 = time.time()
     print("starting group"); t0 = time.time()
+    breeze_df.Transaction_dtm = pd.to_datetime(breeze_df.Transaction_dtm)
     groups = breeze_df.groupby("Serial_Nbr")
     print("time for grouping", time.time() - t0); t0 = time.time()
 
@@ -48,17 +49,17 @@ def main():
     actual = 0
     for Serial_Nbr, df in groups:
         count += 1
-        if len(df) > max_ind*5 and not np.any(df.MATCH_ERROR):
-            t0 = time.time()
-            actual += 1
+        # if len(df) > max_ind*5 and not np.any(df.MATCH_ERROR):
+        t0 = time.time()
+        actual += 1
 
-            df.to_csv(join("../Data/People", str(Serial_Nbr) + ".csv"))
-            # trip chain
-            trip_chain = TripChain()
-            trip_df = trip_chain.trip_chain_df(breeze_df=df, breeze_number=Serial_Nbr)
-            trip_df.to_csv(join("../Data/PeopleTrips", str(Serial_Nbr) + ".csv"))
+        df.to_csv(join("../Data/People", str(Serial_Nbr) + ".csv"))
+        # trip chain
+        trip_chain = TripChain()
+        trip_df = trip_chain.trip_chain_df(breeze_df=df, breeze_number=Serial_Nbr)
+        trip_df.to_csv(join("../Data/PeopleTrips", str(Serial_Nbr) + ".csv"))
 
-            print("COUNT IS", count, "out of", total, "actuals", actual, "time", time.time()-t0)
+        print("COUNT IS", count, "out of", total, "actuals", actual, "time", time.time()-t0)
 
 
 if __name__ == '__main__':
