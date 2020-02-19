@@ -96,6 +96,9 @@ class BreezeLoader:
                 if apc_row.stop_id == "NO_ROUTE_INFO":
                     error = "NO_ROUTE_INFO"
                     stop_id = -1
+                if apc_row.stop_id == "No nearby stop on route":
+                    error = "No nearby stop on route"
+                    stop_id = -1
 
                 stops.append(stop_id)
                 arr_times.append(arr_time)

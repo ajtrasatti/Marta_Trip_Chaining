@@ -28,7 +28,7 @@ def main():
 
     breeze_df = None
 
-    max_ind = 3
+    max_ind = 10
     for folder, date in zip(folders[1:max_ind], dates[1:max_ind]):
         print(date)
         temp = pd.read_csv(join(folder_path, folder, "breeze_output.csv")).drop('Unnamed: 0', axis=1)
@@ -45,21 +45,30 @@ def main():
 
     total = len(groups)
     print(total)
-    count = 0
-    actual = 0
+    count = -1
+    # actual = 0
+
+    t0 = time.time()
+    t2 = time.time()
     for Serial_Nbr, df in groups:
         count += 1
         # if len(df) > max_ind*5 and not np.any(df.MATCH_ERROR):
-        t0 = time.time()
-        actual += 1
+        # actual += 1
 
-        df.to_csv(join("../Data/People", str(Serial_Nbr) + ".csv"))
+        # df.to_csv(join("../Data/People", str(Serial_Nbr) + ".csv"))
         # trip chain
         trip_chain = TripChain()
-        trip_df = trip_chain.trip_chain_df(breeze_df=df, breeze_number=Serial_Nbr)
-        trip_df.to_csv(join("../Data/PeopleTrips", str(Serial_Nbr) + ".csv"))
+        if count % 1000 == 0:
+            t1 = t2
+            t2 = time.time()
+            verbose = True
+        else:
+            verbose = False
+        trip_df = trip_chain.trip_chain_df(breeze_df=df, breeze_number=Serial_Nbr, verbose=verbose)
+        # trip_df.to_csv(join("../Data/PeopleTrips", str(Serial_Nbr) + ".csv"))
 
-        print("COUNT IS", count, "out of", total, "actuals", actual, "time", time.time()-t0)
+        if verbose:
+            print("COUNT IS", count, "out of", total, "time", time.time()-t0, "time for 1000", time.time()-t1)
 
 
 if __name__ == '__main__':

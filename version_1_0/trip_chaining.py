@@ -182,8 +182,10 @@ class TripChain:
                 not_valid += 1
                 return False
         # else
+        if next_stop_id == -1:
+            raise ValueError("This value should not have been chained")
         if route_id != 0:
-            print("CHECK CHECK ", next_stop_id, route_id, next_route_id)
+            # print("CHECK CHECK ", next_stop_id, route_id, next_route_id)
             valid += 1
         return True
 
@@ -210,13 +212,13 @@ class TripChain:
                     # self.trip["end_time"] =  # @todo: need to look at apc data to find end time for buses
 
         global leg_count
-        leg_count[(self.trip["used_bus"],self.trip["used_train"])] += 1
+        leg_count[(self.trip["used_bus"], self.trip["used_train"])] += 1
         for k in self.tracking:
             self.trips[k].append(self.trip[k])
         # return self.trips
 
-    def trip_chain_df(self, breeze_df=None, breeze_number=None):
-        print("Starting for person ", breeze_number, len(breeze_df))
+    def trip_chain_df(self, breeze_df=None, breeze_number=None, verbose=False):
+        # print("Starting for person ", breeze_number, len(breeze_df))
         if breeze_df is None:
             breeze_df = self.df
 
@@ -238,8 +240,9 @@ class TripChain:
         # print("TEST TEST", len(trip_df), len(breeze_df), breeze_number)
         global valid
         global not_valid
-        print("chained percent", valid/(valid+not_valid), valid, not_valid)
-        print("leg count (bus,train)", leg_count)
+        if verbose:
+            print("chained percent", valid/(valid+not_valid), valid, not_valid)
+            print("leg count (bus,train)", leg_count)
         return trip_df
 
 
