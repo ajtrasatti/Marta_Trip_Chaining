@@ -21,15 +21,15 @@ not_valid = 1
 
 
 class TripChain:
-    """ 
+    """
     This implements the finite state machine design pattern for
     state space:
-        - 0 - start - occurs when a trip is being built
-        - 1 - error
-        - 2 - in train - occurs when a customers has entered into a train
-        - 3 - out train - occurs when a customer exits a train
-        - 4 - bus - occurs when a customer has entered into a bus
-        - 5 - end
+        - start - occurs when a trip is being built
+        - error
+        - in train - occurs when a customers has entered into a train
+        - out train - occurs when a customer exits a train
+        - in bus - occurs when a customer has entered into a bus
+        - finish
 
     :attributes:
         - trans_dist - distance that limits the transitions this is the maximum transfer distance
@@ -44,15 +44,13 @@ class TripChain:
         # for k in self.tracking:
         #     self.trips[k].append(self.trip[k])
     """
-    def __init__(self, network=network):
+    def __init__(self, this_network=network):
         self.state = None
-        self.network = network
-
+        self.network = this_network
         self.tracking = ["trip_id", "breeze_id", "start_stop", "start_time", "end_stop", "end_time",
-                         "stops", "routes", "num_legs", "used_bus", "used_train"]
+                         "stops", "routes", "num_legs", "used_bus", "used_train", "error_bool", "error_details"]
         self.trips = defaultdict(lambda: [])  # For everything
         self.trip = defaultdict(lambda: np.nan)
-
         self.trip_df = None
 
     @staticmethod
@@ -80,11 +78,18 @@ class TripChain:
         Check to see if the next stop is accessible from previous route (within a maximum distance)
         :param stop_id: the stop_id for the next leg
         :param route_id: the route of the last leg
-
         :return: boolean representing if it is a valid transfer
         """
         valid_transition = self.network.get_transition(stop_id, route_id, ret_bool=True)
         return valid_transition
+
+    def error_handler(self, error_code):
+        if str(error_code) != "nan":
+            self.trip["error_details"].append(error_code)
+            if self.trip["error_bool"] == 0:
+                self.trip["error_bool"] = 1
+        # else:
+
 
     def start_trip(self, first_leg):
         """
@@ -104,6 +109,12 @@ class TripChain:
         self.trip["used_train"] = self.is_rail(first_leg.Dev_Operator)
         self.trip["directions"] = [first_leg.MATCH_DIRECTION]
         self.trip["num_legs"] = 1
+        self.trip["error_details"] = []
+        self.trip["error_bool"] = 0
+        self.error_handler(first_leg.MATCH_ERROR)
+        # self.trip["error_bool"] = (1 if first_leg.MATCH_ERROR else 0)
+        # self.trip["error_details"] = [first_leg.MATCH_ERROR]
+
         global trip_id
         self.trip["trip_id"] = trip_id
 
@@ -153,6 +164,7 @@ class TripChain:
             self.trip["used_train"] += self.is_rail(next_leg.Dev_Operator)
             self.trip["used_bus"] += self.is_bus(next_leg.Dev_Operator)
             self.trip["num_legs"] += 1
+            self.error_handler(next_leg.MATCH_ERROR)
         else:  # was an exit
             self.state = "exit"
             self.trip["end_stop"] = int(stop_id)
@@ -218,6 +230,15 @@ class TripChain:
         # return self.trips
 
     def trip_chain_df(self, breeze_df=None, breeze_number=None, verbose=False):
+        """
+        This is the main method, it goes through all the trips for an individual
+        and chains the trip
+
+        :param breeze_df:
+        :param breeze_number:
+        :param verbose:
+        :return:
+        """
         # print("Starting for person ", breeze_number, len(breeze_df))
         if breeze_df is None:
             breeze_df = self.df
@@ -249,7 +270,6 @@ class TripChain:
 def test():
     # For a given df that corresponds to an individual, go through each row and update the state
     filename = "/Users/anthonytrasatti/Desktop/Research/Marta/Trip-Chaining-master/Data/People/4089507211.csv"
-
     df = pd.read_csv(filename, index_col=0)
     df.Transaction_dtm = pd.to_datetime(df.Transaction_dtm)
     x = df.head()
