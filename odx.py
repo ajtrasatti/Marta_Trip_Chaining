@@ -1,32 +1,44 @@
 import pandas as pd
 from collections import defaultdict
 
-filename = "Data/trips.csv"
 
-stop_count = defaultdict(lambda : 0)
+class ODX:
+    def __init__(self):
+        self.stop_count = defaultdict(lambda: 0)
 
-def count(stop,df):
-    stop_count[stop] += len(df)
+    def count(self, stop, count):
+        self.stop_count[stop] += count
+
+    def count_stop_uses(self, od_counts):
+        # Find the counts for how many times each stop was used as a origin or destination
+        for origin, destination, count in od_counts:
+            self.count(origin, count)
+            self.count(destination, count)
+
+        stop_counts_arr = [(stop, count) for stop, count in self.stop_count.items()]
+        stop_counts = pd.DataFrame(stop_counts_arr, columns=["start_stop", "count"])
+        stop_counts.to_csv("Data/StopCounts_April1-10.csv", index=False)
+
+    def count_od_uses(self, df_trips):
+        groups = df_trips.groupby(["start_stop", "end_stop"])
+        od_counts = [(stop[0], stop[1], len(df)) for stop, df in groups if stop[0] != -1 and stop[1] != -1]
+        self.count_stop_uses(od_counts)
+        print("number of od pairs", len(od_counts))
+        return pd.DataFrame(od_counts, columns=["start_stop", "end_stop", "count"])
 
 
+def main():
+    filename = "Data/trips_April1-10.csv"
+    df_trips = pd.read_csv(filename)  # , index_col=0)
+    odx = ODX()
 
-df = pd.read_csv(filename)#, index_col=0)
-
-
-# Find the counts for how many times each stop was used as a origin or destination
-groups = df.groupby("start_stop")
-[count(stop,df) for stop,df in groups if stop != -1]
-groups = df.groupby("end_stop")
-[count(stop,df) for stop,df in groups if stop != -1]
-
-stop_counts_arr = [(stop,count) for stop, count in stop_count.items()]
-pd.DataFrame(stop_counts_arr,columns = ["start_stop","count"]).to_csv("Data/StopCounts_April1-10.csv",index=False)
-# pd.DataFrame(dests, columns = ["end_stop","count"]).to_csv("destinations_April1-10.csv",index=False)
+    # Get counts for each origin-destination pair
+    df_odx = odx.count_od_uses(df_trips)
+    df_odx.to_csv("Data/odx_April1-10.csv", index=False)
 
 
-
-# OD matrix 
-groups = df.groupby(["start_stop","end_stop"])
-odx = [(stop[0],stop[1],len(df)) for stop,df in groups if stop[0] != -1 and stop[1] != -1]
-pd.DataFrame(odx, columns = ["start_stop","end_stop","count"]).to_csv("Data/odx_April1-10.csv", index=False)
-print(len(odx))
+if __name__ == "__main__":
+    import time
+    t0 = time.time()
+    main()
+    print("total time", time.time() - t0)

@@ -3,7 +3,6 @@
 @author Joshua E. Morgan , jmorgan63@gatech.edu
 Socially Aware Mobility (SAM) Lab, Georgia Tech
 v_1.0
-@todo Output error stats to a file using an error class
 """
 
 import os
@@ -67,8 +66,7 @@ def preprocessing(gtfs, day, data_path, rail_path):  # data, gtsf_path, ):  # da
 def main():
     import time
     t0 = time.time()
-    file_dir = realpath(__file__).split('/version')[0]
-    my_path = join(file_dir, "Data")
+    my_path = "../Data"
     folder_path = join(my_path, "partitioned")
     # list of folders in directory
 
