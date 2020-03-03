@@ -1,7 +1,5 @@
 # Marta Trip Chaining
 
-### OLD VERSION - For current version, go to https://github.com/ajtrasatti/Transit
-
 ## Objective:
 To build a software to build from transaction data and automated personel counter data to a origin destination matrix for marta system improvements and optimization
 
