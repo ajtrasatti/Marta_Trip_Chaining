@@ -10,6 +10,8 @@ To build a software to build from transaction data and automated personel counte
   - **route.py** - builds route of megastops and contains methods to get information about the route
   - **stop.py** - contains different types to allow for different stops with different properties to be created
   - **stop_ball_tree.py** - provides stop friendly interface with sklearn R-Tree to find nearest neighbors
+  - **network.py** - object that provides a central storage location for all of the routes and a easy interface to get information from  each of the routes
+
 - *apc*
   - **apc.py** - Loads the automated personel counter data and process it to create a input data set
   - **bus_search.py** - implements a binary search to determine when a given passenger entered a bus
@@ -17,7 +19,6 @@ To build a software to build from transaction data and automated personel counte
 - **rail_mapping_loader.py** - loads data from the rail map from station names to latitudes to the megastops
 
 - **trip_chaining.py** - used to trip chain for each breeze id over all the data
-  - **network.py** - object that provides a central storage location for all of the routes and a easy interface to get information from  each of the routes
 
 
 ## Pipeline Diagram 
